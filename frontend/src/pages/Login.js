@@ -21,7 +21,7 @@ export default function Login() {
       localStorage.setItem('userId', res.data.id);
       localStorage.setItem('userTipo', res.data.tipo);
       localStorage.setItem('userName', res.data.nome);
-      window.location.href = '/produtos';
+      window.location.href = '/api/produtos';
     } catch (err) {
       alert("Erro ao logar: " + (err.response?.data?.error || "Erro de conexão"));
     } finally {
