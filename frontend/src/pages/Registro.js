@@ -23,7 +23,7 @@ export default function Registro() {
 
     setCarregando(true);
     try {
-      await api.post('/registro', formData);
+      await api.post('/api/registro', formData);
       alert("Conta criada com sucesso! Agora faça seu login.");
       navigate('/');
     } catch (err) {
@@ -57,7 +57,7 @@ export default function Registro() {
           </div>
 
           <div className="dev-signature">
-            Desenvolvido por <a href="https://alanponto.info" target="_blank" rel="noreferrer">alanpontoinfo</a>
+            Desenvolvido por <a href="https://alanpontoinfo.netlify.app" target="_blank" rel="noreferrer">alanpontoinfo</a>
           </div>
         </div>
       </div>

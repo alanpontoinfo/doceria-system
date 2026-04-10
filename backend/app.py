@@ -39,7 +39,7 @@ def verificar_permissao(user_id, tipos_permitidos):
     return None
 
 # ================= USUÁRIOS (Sem alterações) ================= 
-@app.route('/registro', methods=['POST'])
+@app.route('/api/registro', methods=['POST'])
 def register():
     data = request.json
     user = {
@@ -49,7 +49,7 @@ def register():
     usuarios.insert_one(user)
     return jsonify({"msg": "Usuário criado"})
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     user = usuarios.find_one({"email": data['email'], "senha": data['senha']})
@@ -57,7 +57,7 @@ def login():
     return jsonify({"error": "Login inválido"}), 401
 
 # ================= PRODUTOS (ADMIN ONLY) =================
-@app.route('/produtos', methods=['GET', 'POST'])
+@app.route('/api/produtos', methods=['GET', 'POST'])
 def produtos_handler():
     if request.method == 'POST':
         user_id = request.headers.get('user-id') or request.headers.get('user_id')
@@ -75,7 +75,7 @@ def produtos_handler():
     for p in lista: p['_id'] = str(p['_id'])
     return jsonify(lista)
 
-@app.route('/produtos/<id>', methods=['PUT', 'DELETE'])
+@app.route('/api/produtos/<id>', methods=['PUT', 'DELETE'])
 def produto_update_delete(id):
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
     if not verificar_permissao(user_id, ['admin']):
@@ -89,7 +89,7 @@ def produto_update_delete(id):
     return jsonify({"msg": "Removido"})
 
 # ================= PEDIDOS (CLIENTE E ADMIN CRUD COMPLETO) =================
-@app.route('/pedido', methods=['POST', 'GET'])
+@app.route('/api/pedido', methods=['POST', 'GET'])
 def pedido_handler():
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
     if not verificar_permissao(user_id, ['cliente', 'admin']):
@@ -134,7 +134,7 @@ def pedido_handler():
         p['usuario_id'] = str(p['usuario_id'])
     return jsonify(lista)
 
-@app.route('/pedido/<id>', methods=['PUT', 'DELETE'])
+@app.route('/api/pedido/<id>', methods=['PUT', 'DELETE'])
 def pedido_modificar(id):
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
     user = verificar_permissao(user_id, ['cliente', 'admin'])
@@ -166,7 +166,7 @@ def pedido_modificar(id):
 #================= Relatorio meus pedidos ==================
 
 
-@app.route('/relatorio/meus-pedidos', methods=['GET'])
+@app.route('/api/relatorio/meus-pedidos', methods=['GET'])
 def relatorio_usuario_logado():
     try:
         # 1. Identificação do Usuário via Header
@@ -252,7 +252,7 @@ def relatorio_usuario_logado():
 
 
 # ================= RELATÓRIO PDF (MELHORADO) =================
-@app.route('/relatorio/vendas', methods=['GET'])
+@app.route('/api/relatorio/vendas', methods=['GET'])
 def relatorio_vendas():
     try:
         # 1. Configuração inicial do PDF (fpdf2)
@@ -329,7 +329,7 @@ def relatorio_vendas():
         return jsonify({"error": "Erro interno ao gerar o arquivo"}), 500
 
 
-@app.route('/relatorio/precos', methods=['GET'])
+@app.route('/api/relatorio/precos', methods=['GET'])
 def relatorio_precos():
     try:
         pdf = FPDF()
@@ -364,7 +364,7 @@ def relatorio_precos():
 
 
 # ================= PRECIFICAÇÃO DINÂMICA (ADMIN) =================
-@app.route('/produtos/precificar', methods=['POST'])
+@app.route('/api/produtos/precificar', methods=['POST'])
 def precificar_produto():
     # 1. Validação de Segurança (Apenas Admin)
     user_id = request.headers.get('user-id')

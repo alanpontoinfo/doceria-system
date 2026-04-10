@@ -64,7 +64,7 @@ export default function Relatorios() {
               Visão detalhada de todos os pedidos, clientes e faturamento acumulado da doceria. Ideal para fechamento de mês.
             </p>
             <button 
-              onClick={() => baixarPDF('/relatorio/vendas', 'vendas_doceria.pdf')}
+              onClick={() => baixarPDF('/api/relatorio/vendas', 'vendas_doceria.pdf')}
               className="btn-gerar-pdf-preto"
             >
               <FileDown size={20}/> Gerar PDF de Vendas
@@ -81,7 +81,7 @@ export default function Relatorios() {
               Lista atualizada de produtos e categorias para conferência interna ou envio rápido para parceiros e revendedores.
             </p>
             <button 
-              onClick={() => baixarPDF('/relatorio/precos', 'tabela_precos_atual.pdf')}
+              onClick={() => baixarPDF('/api/relatorio/precos', 'tabela_precos_atual.pdf')}
               className="btn-gerar-pdf-borda"
             >
               <FileDown size={20}/> Baixar Catálogo PDF
@@ -101,7 +101,7 @@ export default function Relatorios() {
               Visão detalhada do historico  de todos os pedidos de cada cliente.
             </p>
             <button
-              onClick={() => baixarPDF('/relatorio/meus-pedidos', 'meu_historico_pedidos.pdf')}
+              onClick={() => baixarPDF('/api/relatorio/meus-pedidos', 'meu_historico_pedidos.pdf')}
               className="btn-gerar-pdf-preto"
             >
               <FileDown size={20}/> Gerar PDF Histórico de Pedidos
