@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
+import api from '../api/api';
 import { Trash2, Edit, Plus, FileText, X, ShoppingBag, LogOut, User, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Produtos.css';
 
