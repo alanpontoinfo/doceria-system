@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/app.py",
+      "src": "backend/index.py",
       "use": "@vercel/python"
     },
     {
@@ -14,7 +14,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "backend/app.py"
+      "destination": "backend/index.py"
     },
     {
       "source": "/(.*)",
