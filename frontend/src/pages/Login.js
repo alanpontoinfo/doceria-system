@@ -17,11 +17,11 @@ export default function Login() {
     if (!email || !senha) return alert("Preencha todos os campos!");
     setCarregando(true);
     try {
-      const res = await api.post('/api/login', { email, senha });
+      const res = await api.post('/login', { email, senha });
       localStorage.setItem('userId', res.data.id);
       localStorage.setItem('userTipo', res.data.tipo);
       localStorage.setItem('userName', res.data.nome);
-      window.location.href = '/api/produtos';
+      window.location.href = '/produtos';
     } catch (err) {
       alert("Erro ao logar: " + (err.response?.data?.error || "Erro de conexão"));
     } finally {
@@ -113,7 +113,7 @@ export default function Login() {
               Desenvolvido por <strong>alanpontoinfo</strong> <ExternalLink size={15} />
             </a>
 	    <p className="footer-link">
-            Já tem uma conta? <span onClick={() => navigate('api/registro')}>Criar Registro</span>
+            Já tem uma conta? <span onClick={() => navigate('/registro')}>Criar Registro</span>
           </p>
 
           </div>

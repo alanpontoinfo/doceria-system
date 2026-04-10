@@ -23,7 +23,7 @@ export default function Produtos() {
 
   const loadProducts = async () => {
     try {
-      const res = await api.get('/api/produtos');
+      const res = await api.get('/produtos');
       setProds(res.data);
     } catch (err) {
       console.error("Erro ao carregar produtos");
@@ -53,9 +53,9 @@ export default function Produtos() {
     e.preventDefault();
     try {
       if (editingId) {
-        await api.put(`/api/produtos/${editingId}`, form);
+        await api.put(`/produtos/${editingId}`, form);
       } else {
-        await api.post('/api/produtos', form);
+        await api.post('/produtos', form);
       }
       fecharModal();
       loadProducts();
@@ -73,7 +73,7 @@ export default function Produtos() {
   const handleDelete = async (id) => {
     if (window.confirm("Deseja realmente remover este doce?")) {
       try {
-        await api.delete(`/api/produtos/${id}`);
+        await api.delete(`/produtos/${id}`);
         loadProducts();
       } catch (err) {
         alert("Erro ao excluir");
@@ -120,13 +120,13 @@ export default function Produtos() {
             <ShoppingBag size={18} /> Fazer Pedido
           </button>
 	  { isAdmin && (
-		  <button onClick={() => navigate('/api/relatorios')} className="btn-admin w-full md:w-auto">
+		  <button onClick={() => navigate('/relatorios')} className="btn-admin w-full md:w-auto">
               <FileText size={16}/> <span className="hidden md:inline"/> Relatórios
             </button> )}
 
           {isAdmin && (
 
-            <button onClick={() => navigate('/api/precificar')} className="btn-admin w-full md:w-auto">
+            <button onClick={() => navigate('/precificar')} className="btn-admin w-full md:w-auto">
               <DollarSign size={16} /> Precificar
             </button>
           
