@@ -1,0 +1,204 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Para navegação interna
+import api from '../api/api';
+import { Trash2, Edit, Plus, FileText, X, ShoppingBag, LogOut, User } from 'lucide-react';
+import './stylo.css';
+
+export default function Produtos() {
+  const [prods, setProds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+
+  const navigate = useNavigate();
+  const isAdmin = localStorage.getItem('userTipo') === 'admin';
+  const userName = localStorage.getItem('userName') || 'Confeiteiro(a)';
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await api.get('/produtos');
+      setProds(res.data);
+    } catch (err) {
+      console.error("Erro ao carregar produtos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/'; // Redireciona para o login limpando tudo
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await api.put(`/produtos/${editingId}`, form);
+      } else {
+        await api.post('/produtos', form);
+      }
+      fecharModal();
+      loadProducts();
+    } catch (err) {
+      alert("Erro ao salvar dados.");
+    }
+  };
+
+  const fecharModal = () => {
+    setIsModalOpen(false);
+    setEditingId(null);
+    setForm({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+  };
+
+const handleDelete = async (id) => {
+    if (window.confirm("Deseja realmente remover este doce?")) {
+      try {
+        await api.delete(`/produtos/${id}`);
+        loadProducts();
+      } catch (err) {
+        alert("Erro ao excluir");
+      }
+    }
+  };
+
+  const handleDownloadPrecos = async () => {
+    const res = await api.get('/relatorio/precos', { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'tabela_precos.pdf');
+    link.click();
+  };
+
+  return (
+    <div className="min-h-screen bg-sweet-gradient p-8">
+      
+      {/* BARRA SUPERIOR DE USUÁRIO */}
+      <div className="max-w-6xl mx-auto flex justify-between items-center mb-6 bg-white/50 p-4 rounded-3xl backdrop-blur-sm border border-white">
+        <div className="flex items-center gap-3">
+          <div className="bg-pink-500 p-2 rounded-full text-white">
+            <User size={20} />
+          </div>
+          <span className="text-doce-preto font-bold">Olá, <span className="text-pink-600">{userName}</span>!</span>
+        </div>
+        
+        <button onClick={handleLogout} className="btn-logoff flex items-center gap-2">
+          <LogOut size={18} /> Sair
+        </button>
+      </div>
+
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+        <div>
+          <h1 className="text-4xl font-black text-doce-preto">
+            Menu de <span className="text-pink-500 italic">Delícias</span>
+          </h1>
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-3">
+          <button onClick={() => navigate('/pedidos')} className="btn-pedidos">
+            <ShoppingBag size={18} /> Fazer Pedido
+          </button>
+
+          <button onClick={async () => {handleDownloadPrecos}} className="btn-secondary">
+            <FileText size={18} /> Tabela PDF
+          </button>
+          
+          {isAdmin && (
+            <button onClick={() => setIsModalOpen(true)} className="btn-primary">
+              <Plus size={18} /> Novo Doce
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* LISTAGEM DE PRODUTOS */}
+      {loading ? (
+        <div className="loader-container"><div className="loader"></div></div>
+      ) : (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {prods.map(p => (
+            <div key={p._id} className="card-produto">
+              <div className="badge-preco">R$ {parseFloat(p.preco).toFixed(2)}</div>
+              <div className="mb-6">
+                <span className="categoria-label">{p.tipoProduto}</span>
+                <h3 className="nome-produto">{p.nome}</h3>
+              </div>
+              <div className="flex justify-between items-center border-t border-pink-50 pt-4">
+                <span className="estoque-label">Estoque: <b>{p.qtd} un</b></span>
+                {isAdmin && (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEdit(p)} className="btn-icon-edit"><Edit size={18}/></button>
+                    <button onClick={() => handleDelete(p._id)} className="btn-icon-delete"><Trash2 size={18}/></button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MODAL (Omitido aqui por brevidade, mas deve permanecer igual) */}
+
+
+  {/* MODAL (NOVO / EDITAR) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-doce-preto/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-8 rounded-[40px] w-full max-w-md shadow-2xl border-b-8 border-pink-500 relative">
+            <button onClick={fecharModal} className="absolute top-6 right-6 text-gray-400 hover:text-black">
+              <X size={24} />
+            </button>
+
+            <h2 className="text-2xl font-black mb-6 text-doce-preto">
+              {editingId ? 'Editar Doce' : 'Cadastrar Doce'}
+            </h2>
+
+            <form onSubmit={handleSave} className="space-y-4">
+              <input 
+                value={form.nome}
+                placeholder="Nome da delícia" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, nome: e.target.value})}
+                required
+              />
+              <input 
+                value={form.tipoProduto}
+                placeholder="Categoria (ex: Bolos)" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, tipoProduto: e.target.value})}
+                required
+              />
+              <div className="flex gap-4">
+                <input 
+                  value={form.preco}
+                  type="number" step="0.01" placeholder="Preço" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, preco: e.target.value})}
+                  required
+                />
+                <input 
+                  value={form.qtd}
+                  type="number" placeholder="Estoque" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, qtd: e.target.value})}
+                  required
+                />
+              </div>
+              <button type="submit" className="w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4">
+                {editingId ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+    </div>
+  );
+}

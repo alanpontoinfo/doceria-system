@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* O Tailwind 4 descobre seus arquivos .js e .jsx sozinho! */
+/* Se quiser adicionar suas cores de "Doceria", use variáveis CSS: */
+
+@theme {
+  --color-doce-rosa: #FFB7C5;
+  --color-doce-creme: #FFFDD0;
+  --color-doce-preto: #1A1A1A;
+  
+  --background-image-sweet-gradient: linear-gradient(to bottom right, #FFB7C5, #FFFDD0, #FFFFFF);
+}

@@ -1,0 +1,210 @@
+import './Produtos.css';
+import React, { useState, useEffect } from 'react';
+import api from '../api/api';
+import { Trash2, Edit, Plus, FileText, X } from 'lucide-react';
+
+export default function Produtos() {
+  const [prods, setProds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null); // Estado para o ID em edição
+  
+  // Estado inicial do formulário
+  const [form, setForm] = useState({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+
+  const isAdmin = localStorage.getItem('userTipo') === 'admin';
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await api.get('/produtos');
+      setProds(res.data);
+    } catch (err) {
+      alert("Erro ao carregar produtos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 1. FUNÇÃO PARA ABRIR EDIÇÃO
+  const handleEdit = (p) => {
+    setEditingId(p._id);
+    setForm({ nome: p.nome, tipoProduto: p.tipoProduto, preco: p.preco, qtd: p.qtd });
+    setIsModalOpen(true);
+  };
+
+  // 2. FUNÇÃO SALVAR (CRIA OU ATUALIZA)
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        // Se tem ID, é PUT (Editar)
+        await api.put(`/produtos/${editingId}`, form);
+        alert("Doce atualizado!");
+      } else {
+        // Se não tem ID, é POST (Criar)
+        await api.post('/produtos', form);
+        alert("Doce cadastrado!");
+      }
+      fecharModal();
+      loadProducts();
+    } catch (err) {
+      alert(err.response?.data?.error || "Erro ao salvar");
+    }
+  };
+
+  const fecharModal = () => {
+    setIsModalOpen(false);
+    setEditingId(null);
+    setForm({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Deseja realmente remover este doce?")) {
+      try {
+        await api.delete(`/produtos/${id}`);
+        loadProducts();
+      } catch (err) {
+        alert("Erro ao excluir");
+      }
+    }
+  };
+
+  const handleDownloadPrecos = async () => {
+    const res = await api.get('/relatorio/precos', { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'tabela_precos.pdf');
+    link.click();
+  };
+
+  return (
+    // bg-sweet-gradient deve estar no seu index.css
+    <div className="min-h-screen bg-sweet-gradient p-8">
+      
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+        <div>
+          <h1 className="text-4xl font-black text-doce-preto">
+            Menu de <span className="text-pink-500 italic">Delícias</span>
+          </h1>
+          <p className="text-gray-500 font-medium">Gestão de estoque e catálogo</p>
+        </div>
+        
+        <div className="flex gap-3">
+          <button 
+            onClick={handleDownloadPrecos}
+            className="flex items-center gap-2 bg-white border-2 border-doce-preto px-6 py-2 rounded-full font-bold hover:bg-doce-preto hover:text-white transition-all shadow-sm"
+          >
+            <FileText size={18} /> PDF
+          </button>
+          
+          {isAdmin && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-pink-600 transition-all"
+            >
+              <Plus size={18} /> Novo Doce
+            </button>
+          )}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center p-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-pink-500"></div>
+        </div>
+      ) : (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {prods.map(p => (
+            <div key={p._id} className="bg-white/80 backdrop-blur-sm border-2 border-pink-50 p-6 rounded-[32px] shadow-sm hover:shadow-xl transition-all relative group">
+              <div className="absolute top-0 right-0 bg-pink-500 text-white px-5 py-1 rounded-bl-2xl font-bold shadow-sm">
+                R$ {parseFloat(p.preco).toFixed(2)}
+              </div>
+              
+              <div className="mb-6">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-pink-400 font-black">{p.tipoProduto}</span>
+                <h3 className="text-2xl font-bold text-doce-preto leading-tight">{p.nome}</h3>
+              </div>
+
+              <div className="flex justify-between items-center border-t border-pink-50 pt-4">
+                <span className="text-sm text-gray-400 font-medium">Estoque: <b className="text-doce-preto">{p.qtd} un</b></span>
+                
+                {isAdmin && (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEdit(p)}
+                      className="p-2 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all"
+                    >
+                      <Edit size={18}/>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(p._id)}
+                      className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                    >
+                      <Trash2 size={18}/>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MODAL (NOVO / EDITAR) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-doce-preto/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-8 rounded-[40px] w-full max-w-md shadow-2xl border-b-8 border-pink-500 relative">
+            <button onClick={fecharModal} className="absolute top-6 right-6 text-gray-400 hover:text-black">
+              <X size={24} />
+            </button>
+
+            <h2 className="text-2xl font-black mb-6 text-doce-preto">
+              {editingId ? 'Editar Doce' : 'Cadastrar Doce'}
+            </h2>
+
+            <form onSubmit={handleSave} className="space-y-4">
+              <input 
+                value={form.nome}
+                placeholder="Nome da delícia" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, nome: e.target.value})}
+                required
+              />
+              <input 
+                value={form.tipoProduto}
+                placeholder="Categoria (ex: Bolos)" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, tipoProduto: e.target.value})}
+                required
+              />
+              <div className="flex gap-4">
+                <input 
+                  value={form.preco}
+                  type="number" step="0.01" placeholder="Preço" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, preco: e.target.value})}
+                  required
+                />
+                <input 
+                  value={form.qtd}
+                  type="number" placeholder="Estoque" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, qtd: e.target.value})}
+                  required
+                />
+              </div>
+              <button type="submit" className="w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4">
+                {editingId ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

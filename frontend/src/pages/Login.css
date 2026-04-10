@@ -1,0 +1,294 @@
+/* ESTRUTURA BASE (MOBILE-FIRST) */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* Coluna no mobile */
+  background: var(--doce-creme);
+}
+
+/* LADO DO BRANDING - ESCONDIDO POR PADRÃO NO MOBILE */
+.login-branding {
+  display: none; 
+  flex: 1.2;
+  background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+              url('https://images.unsplash.com/photo-1559181567-c3190ca9959b?auto=format&fit=crop&q=80');
+  background-size: cover;
+  background-position: center;
+  padding: 4rem;
+  color: white;
+}
+.branding-content {
+  max-width: 500px;
+}
+
+.badge-premium {
+  background: var(--pink-500);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.typing-animation {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: white;
+  margin-top: 1.5rem;
+  line-height: 1;
+}
+
+.stat-preview {
+  margin-top: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* CARD DE FORMULÁRIO */
+.login-form-wrapper {
+  flex: 1;
+  background: var(--doce-creme);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 3rem;
+  border-radius: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  border-bottom: 8px solid var(--doce-rosa);
+}
+
+/* LOGO TIPO SABOR E ARTE 
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2.5rem;
+}*/
+
+.logo-icon {
+  background: var(--doce-preto);
+  color: var(--doce-rosa);
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.logo-main {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--doce-preto);
+  line-height: 1;
+}
+
+.logo-sub {
+  font-size: 0.9rem;
+  color: var(--pink-500);
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* INPUTS */
+.input-group label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #d1d5db;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  background: #f9fafb;
+  border: 2px solid #f3f4f6;
+  border-radius: 18px;
+  transition: all 0.3s;
+}
+
+.input-with-icon input:focus {
+  border-color: var(--doce-rosa);
+  background: white;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(255, 183, 197, 0.2);
+}
+
+/* BOTÃO ENTRAR */
+.btn-entrar {
+  width: 100%;
+  background: var(--doce-preto);
+  color: white;
+  padding: 1.2rem;
+  border-radius: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1rem;
+}
+
+.btn-entrar:hover {
+  background: var(--pink-500);
+  transform: translateY(-2px);
+}
+
+.btn-entrar .arrow-icon {
+  transition: transform 0.3s;
+}
+
+.btn-entrar:hover .arrow-icon {
+  transform: translateX(5px);
+}
+/* FORMULÁRIO - OCUPA TELA TODA NO MOBILE 
+.login-form-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem; /* Menos padding no mobile }
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 2rem; /* Reduzido para mobile 
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}*/
+
+/* --- MEDIA QUERIES --- */
+
+/* TABLETS E LAPTOPS (DESKTOP) */
+@media (min-width: 1024px) {
+  .login-container {
+    flex-direction: row; /* Volta a ser lado a lado */
+  }
+
+  .login-branding {
+    display: flex; /* Mostra o branding */
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-card {
+    padding: 3.5rem; /* Mais espaço interno no desktop */
+    max-width: 450px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  .typing-animation {
+    font-size: 3.5rem;
+  }
+}
+
+/* SMARTPHONES PEQUENOS */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+    border-bottom-width: 4px; /* Borda mais fina no celular */
+  }
+
+  .logo-main {
+    /*font-size: 1.1rem;*/
+    display: block;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--doce-preto);
+  line-height: 1;
+  }
+
+  .logo-sub {
+    font-size: 0.75rem;
+   /*font-size: 0.9rem;*/
+  color: var(--pink-500);
+  font-weight: 700;
+  font-style: italic;
+  }
+
+  .form-header h3 {
+    font-size: 1.3rem;
+  }
+}
+
+/* ESTILOS DE ELEMENTOS (AJUSTADOS PARA RESPONSIVIDADE) */
+.form-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.form-header h3 {
+  font-weight: 900;
+  color: var(--doce-preto);
+}
+
+.form-header p {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.dev-credit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2rem;
+  font-size: 10px;
+  color: #d1d5db;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.dev-credit:hover {
+  color: var(--pink-500);
+}
+
+
+/* ANIMAÇÃO */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}

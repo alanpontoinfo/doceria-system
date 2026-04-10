@@ -1,0 +1,1252 @@
+import './Produtos.css';
+import React, { useState, useEffect } from 'react';
+import api from '../api/api';
+import { Trash2, Edit, Plus, FileText, X } from 'lucide-react';
+
+export default function Produtos() {
+  const [prods, setProds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null); // Estado para o ID em edição
+  
+  // Estado inicial do formulário
+  const [form, setForm] = useState({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+
+  const isAdmin = localStorage.getItem('userTipo') === 'admin';
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await api.get('/produtos');
+      setProds(res.data);
+    } catch (err) {
+      alert("Erro ao carregar produtos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 1. FUNÇÃO PARA ABRIR EDIÇÃO
+  const handleEdit = (p) => {
+    setEditingId(p._id);
+    setForm({ nome: p.nome, tipoProduto: p.tipoProduto, preco: p.preco, qtd: p.qtd });
+    setIsModalOpen(true);
+  };
+
+  // 2. FUNÇÃO SALVAR (CRIA OU ATUALIZA)
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        // Se tem ID, é PUT (Editar)
+        await api.put(`/produtos/${editingId}`, form);
+        alert("Doce atualizado!");
+      } else {
+        // Se não tem ID, é POST (Criar)
+        await api.post('/produtos', form);
+        alert("Doce cadastrado!");
+      }
+      fecharModal();
+      loadProducts();
+    } catch (err) {
+      alert(err.response?.data?.error || "Erro ao salvar");
+    }
+  };
+
+  const fecharModal = () => {
+    setIsModalOpen(false);
+    setEditingId(null);
+    setForm({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Deseja realmente remover este doce?")) {
+      try {
+        await api.delete(`/produtos/${id}`);
+        loadProducts();
+      } catch (err) {
+        alert("Erro ao excluir");
+      }
+    }
+  };
+
+  const handleDownloadPrecos = async () => {
+    const res = await api.get('/relatorio/precos', { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'tabela_precos.pdf');
+    link.click();
+  };
+
+  return (
+    // bg-sweet-gradient deve estar no seu index.css
+    <div className="min-h-screen bg-sweet-gradient p-8">
+      
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+        <div>
+          <h1 className="text-4xl font-black text-doce-preto">
+            Menu de <span className="text-pink-500 italic">Delícias</span>
+          </h1>
+          <p className="text-gray-500 font-medium">Gestão de estoque e catálogo</p>
+        </div>
+        
+        <div className="flex gap-3">
+          <button 
+            onClick={handleDownloadPrecos}
+            className="flex items-center gap-2 bg-white border-2 border-doce-preto px-6 py-2 rounded-full font-bold hover:bg-doce-preto hover:text-white transition-all shadow-sm"
+          >
+            <FileText size={18} /> PDF
+          </button>
+          
+          {isAdmin && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 bg-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-pink-600 transition-all"
+            >
+              <Plus size={18} /> Novo Doce
+            </button>
+          )}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center p-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-pink-500"></div>
+        </div>
+      ) : (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {prods.map(p => (
+            <div key={p._id} className="bg-white/80 backdrop-blur-sm border-2 border-pink-50 p-6 rounded-[32px] shadow-sm hover:shadow-xl transition-all relative group">
+              <div className="absolute top-0 right-0 bg-pink-500 text-white px-5 py-1 rounded-bl-2xl font-bold shadow-sm">
+                R$ {parseFloat(p.preco).toFixed(2)}
+              </div>
+              
+              <div className="mb-6">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-pink-400 font-black">{p.tipoProduto}</span>
+                <h3 className="text-2xl font-bold text-doce-preto leading-tight">{p.nome}</h3>
+              </div>
+
+              <div className="flex justify-between items-center border-t border-pink-50 pt-4">
+                <span className="text-sm text-gray-400 font-medium">Estoque: <b className="text-doce-preto">{p.qtd} un</b></span>
+                
+                {isAdmin && (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEdit(p)}
+                      className="p-2 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-500 hover:text-white transition-all"
+                    >
+                      <Edit size={18}/>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(p._id)}
+                      className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                    >
+                      <Trash2 size={18}/>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MODAL (NOVO / EDITAR) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-doce-preto/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-8 rounded-[40px] w-full max-w-md shadow-2xl border-b-8 border-pink-500 relative">
+            <button onClick={fecharModal} className="absolute top-6 right-6 text-gray-400 hover:text-black">
+              <X size={24} />
+            </button>
+
+            <h2 className="text-2xl font-black mb-6 text-doce-preto">
+              {editingId ? 'Editar Doce' : 'Cadastrar Doce'}
+            </h2>
+
+            <form onSubmit={handleSave} className="space-y-4">
+              <input 
+                value={form.nome}
+                placeholder="Nome da delícia" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, nome: e.target.value})}
+                required
+              />
+              <input 
+                value={form.tipoProduto}
+                placeholder="Categoria (ex: Bolos)" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, tipoProduto: e.target.value})}
+                required
+              />
+              <div className="flex gap-4">
+                <input 
+                  value={form.preco}
+                  type="number" step="0.01" placeholder="Preço" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, preco: e.target.value})}
+                  required
+                />
+                <input 
+                  value={form.qtd}
+                  type="number" placeholder="Estoque" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, qtd: e.target.value})}
+                  required
+                />
+              </div>
+              <button type="submit" className="w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4">
+                {editingId ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { Trash2, Edit, Plus, FileText, X, ShoppingBag, LogOut, User, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import './stylo.css';
+
+export default function Produtos() {
+  const [prods, setProds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  
+  const itensPorPagina = 6; // Ajuste conforme necessário
+  const navigate = useNavigate();
+  const isAdmin = localStorage.getItem('userTipo') === 'admin';
+  const userName = localStorage.getItem('userName') || 'Usuário';
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await api.get('/produtos');
+      setProds(res.data);
+    } catch (err) {
+      console.error("Erro ao carregar");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Lógica de Paginação
+  const indiceUltimoItem = paginaAtual * itensPorPagina;
+  const indicePrimeiroItem = indiceUltimoItem - itensPorPagina;
+  const produtosExibidos = prods.slice(indicePrimeiroItem, indiceUltimoItem);
+  const totalPaginas = Math.ceil(prods.length / itensPorPagina);
+
+  return (
+    <div className="min-h-screen bg-sweet-gradient p-4 md:p-8">
+      
+      {/* HEADER RESPONSIVO */}
+      <div className="max-w-6xl mx-auto flex justify-between items-center mb-6 bg-white/70 p-4 rounded-3xl backdrop-blur-md border border-white shadow-sm">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="bg-pink-500 p-2 rounded-full text-white">
+            <User size={18} />
+          </div>
+          <span className="text-doce-preto font-bold text-sm md:text-base">
+            Olá, <span className="text-pink-600">{userName.split(' ')[0]}</span>
+          </span>
+        </div>
+        
+        <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="btn-logoff text-xs md:text-sm">
+          <LogOut size={16} /> <span className="hidden md:inline">Sair</span>
+        </button>
+      </div>
+
+      {/* AÇÕES PRINCIPAIS */}
+      <div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
+        <h1 className="text-3xl md:text-5xl font-black text-doce-preto mb-6">
+          Menu de <span className="text-pink-500">Delícias</span>
+        </h1>
+        
+        <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+          <button onClick={() => navigate('/pedidos')} className="btn-pedidos w-full md:w-auto">
+            <ShoppingBag size={18} /> Fazer Pedido
+          </button>
+
+          {/* BOTÃO RESTRITO AO ADMIN */}
+          {isAdmin && (
+            <button onClick={() => navigate('/precificacao')} className="btn-admin w-full md:w-auto">
+              <DollarSign size={18} /> Precificação
+            </button>
+          )}
+
+          <button className="btn-secondary flex-1 md:flex-none">
+            <FileText size={18} /> <span className="hidden md:inline">PDF</span>
+          </button>
+          
+          {isAdmin && (
+            <button onClick={() => setIsModalOpen(true)} className="btn-primary flex-1 md:flex-none">
+              <Plus size={18} /> <span className="hidden md:inline">Novo</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* GRID DE PRODUTOS */}
+      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        {produtosExibidos.map(p => (
+          <div key={p._id} className="card-produto animate-fade-in">
+            <div className="badge-preco">R$ {parseFloat(p.preco).toFixed(2)}</div>
+            <div className="mb-6">
+              <span className="categoria-label">{p.tipoProduto}</span>
+              <h3 className="nome-produto">{p.nome}</h3>
+            </div>
+            <div className="flex justify-between items-center border-t border-pink-50 pt-4">
+              <span className="estoque-label text-xs">Qtd: <b>{p.qtd}</b></span>
+              {isAdmin && (
+                <div className="flex gap-2">
+                  <button className="btn-icon-edit"><Edit size={16}/></button>
+                  <button className="btn-icon-delete"><Trash2 size={16}/></button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* CONTROLES DE PAGINAÇÃO */}
+      {totalPaginas > 1 && (
+        <div className="max-w-6xl mx-auto flex justify-center items-center gap-4 mt-12 pb-10">
+          <button 
+            disabled={paginaAtual === 1}
+            onClick={() => setPaginaAtual(p => p - 1)}
+            className="p-2 rounded-full bg-white border border-pink-100 disabled:opacity-30 hover:bg-pink-50 transition-colors"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          
+          <div className="flex gap-2">
+            {[...Array(totalPaginas)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPaginaAtual(i + 1)}
+                className={`w-10 h-10 rounded-xl font-bold transition-all ${paginaAtual === i + 1 ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-400 border border-pink-50'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button 
+            disabled={paginaAtual === totalPaginas}
+            onClick={() => setPaginaAtual(p => p + 1)}
+            className="p-2 rounded-full bg-white border border-pink-100 disabled:opacity-30 hover:bg-pink-50 transition-colors"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+
+
+
+import React, { useState, useEffect, useCallback } from 'react';
+import api from '../api/api';
+import { ShoppingCart, Trash2, Clock, CheckCircle } from 'lucide-react';
+
+export default function Pedidos() {
+ const [produtos, setProdutos] = useState([]);
+  const [carrinho, setCarrinho] = useState([]);
+  const [meusPedidos, setMeusPedidos] = useState([]);
+  const userId = localStorage.getItem('userId');
+
+  // 2. Envolva a função carregarDados em um useCallback
+  const carregarDados = useCallback(async () => {
+    try {
+      const [resProds, resPedidos] = await Promise.all([
+        api.get('/produtos'),
+        api.get('/pedido')
+      ]);
+      setProdutos(resProds.data);
+      // Filtra os pedidos do usuário logado
+      setMeusPedidos(resPedidos.data.filter(p => p.usuario_id === userId));
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+    }
+  }, [userId]); // 3. O userId é uma dependência aqui
+
+  // 4. Agora o useEffect pode ter carregarDados na lista de dependências sem erro
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
+  // Lógica do Carrinho
+  const adicionarAoCarrinho = (prod) => {
+    const existe = carrinho.find(item => item.id_produto === prod._id);
+    if (existe) {
+      setCarrinho(carrinho.map(item => 
+        item.id_produto === prod._id ? { ...item, qtd: item.qtd + 1 } : item
+      ));
+    } else {
+      setCarrinho([...carrinho, { id_produto: prod._id, nome: prod.nome, preco: prod.preco, qtd: 1 }]);
+    }
+  };
+
+  const finalizarPedido = async () => {
+    try {
+      await api.post('/pedido', { itens: carrinho });
+      alert("Pedido realizado com sucesso!");
+      setCarrinho([]);
+      carregarDados();
+    } catch (err) {
+      alert(err.response?.data?.error || "Erro ao processar pedido");
+    }
+  };
+
+  const calcularTotal = () => carrinho.reduce((sum, i) => sum + i.preco * i.qtd, 0);
+
+  // Lógica das 24h para Cancelamento (seguindo seu backend)
+  const podeCancelar = (dataPedido) => {
+    const dataP = new Date(dataPedido);
+    const agora = new Date();
+    const diffEmHoras = Math.abs(agora - dataP) / 365;
+    return diffEmHoras <= 24;
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FFFDD0] p-8"> {/* Creme */}
+      <h1 className="text-4xl font-black text-black mb-12">Novo <span className="text-pink-500">Pedido</span></h1>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        
+        {/* LISTAGEM DE PRODUTOS (VITRINE) */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {produtos.map(p => (
+              <div key={p._id} className="bg-white p-6 rounded-3xl shadow-sm border-2 border-pink-100 flex justify-between items-center group">
+                <div>
+                  <h3 className="text-xl font-bold">{p.nome}</h3>
+                  <p className="text-pink-500 font-bold">R$ {p.preco.toFixed(2)}</p>
+                  <p className="text-gray-400 text-xs">Estoque: {p.qtd}</p>
+                </div>
+                <button 
+                  onClick={() => adicionarAoCarrinho(p)}
+                  className="bg-black text-white p-3 rounded-2xl hover:bg-pink-500 transition-all active:scale-95"
+                >
+                  Adicionar
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* HISTÓRICO DE PEDIDOS */}
+          <div className="mt-12 bg-white/50 p-6 rounded-3xl border-2 border-dashed border-pink-200">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Clock size={20}/> Meus Pedidos Recentes</h2>
+            {meusPedidos.map(p => (
+              <div key={p._id} className="flex justify-between items-center p-4 border-b border-pink-100">
+                <span className="text-sm font-medium">{new Date(p.data).toLocaleDateString()} - R$ {p.total.toFixed(2)}</span>
+                {podeCancelar(p.data) ? (
+                  <button onClick={() => api.delete(`/pedido/${p._id}`).then(carregarDados)} className="text-red-500 hover:underline flex items-center gap-1 text-xs"><Trash2 size={14}/> Cancelar (Regra 24h)</button>
+                ) : (
+                  <span className="text-gray-400 text-xs flex items-center gap-1"><CheckCircle size={14}/> Finalizado</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CARRINHO (ESTILO SAAS MODERNO) */}
+        <div className="bg-black text-white p-8 rounded-[40px] shadow-2xl h-fit sticky top-8 border-r-8 border-pink-500">
+          <h2 className="text-2xl font-black mb-8 flex items-center gap-2"><ShoppingCart /> Carrinho Doce</h2>
+          
+          <div className="space-y-4 mb-10 min-h-[150px]">
+            {carrinho.map(item => (
+              <div key={item.id_produto} className="flex justify-between items-center border-b border-white/10 pb-2">
+                <div className="text-sm">
+                  <p className="font-bold">{item.nome}</p>
+                  <p className="text-pink-300 text-xs">{item.qtd}x R$ {item.preco}</p>
+                </div>
+                <button onClick={() => setCarrinho(carrinho.filter(i => i.id_produto !== item.id_produto))}><Trash2 size={16} className="text-white/40 hover:text-red-400"/></button>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-white/20 pt-6">
+            <div className="flex justify-between text-2xl font-black mb-6">
+              <span>TOTAL:</span>
+              <span className="text-pink-400">R$ {calcularTotal().toFixed(2)}</span>
+            </div>
+            <button 
+              disabled={carrinho.length === 0}
+              onClick={finalizarPedido}
+              className="w-full bg-pink-500 text-white p-4 rounded-2xl font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-30"
+            >
+              Confirmar Doçura
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { ShoppingCart, Trash2, Clock, CheckCircle, ChevronLeft, ChevronRight, FileText, ArrowLeft } from 'lucide-react';
+import './stylo_pedidos.css';
+
+export default function Pedidos() {
+  const [produtos, setProdutos] = useState([]);
+  const [carrinho, setCarrinho] = useState([]);
+  const [meusPedidos, setMeusPedidos] = useState([]);
+  
+  // Estados de Paginação
+  const [pagProd, setPagProd] = useState(1);
+  const [pagHist, setPagHist] = useState(1);
+  
+  const [loading, setLoading] = useState(true);
+  
+  const itensPorPaginaProd = 4;
+  const itensPorPaginaHist = 3; // Menos itens por página no histórico para não alongar demais
+  
+  const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
+
+  const carregarDados = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [resProds, resPedidos] = await Promise.all([
+        api.get('/produtos'),
+        api.get('/pedido')
+      ]);
+      setProdutos(resProds.data);
+      setMeusPedidos(resPedidos.data.filter(p => p.usuario_id === userId));
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
+  // Lógica Paginação Produtos
+  const produtosExibidos = produtos.slice((pagProd - 1) * itensPorPaginaProd, pagProd * itensPorPaginaProd);
+  const totalPaginasProd = Math.ceil(produtos.length / itensPorPaginaProd);
+
+  // Lógica Paginação Histórico
+  const pedidosExibidos = meusPedidos.slice((pagHist - 1) * itensPorPaginaHist, pagHist * itensPorPaginaHist);
+  const totalPaginasHist = Math.ceil(meusPedidos.length / itensPorPaginaHist);
+
+  const adicionarAoCarrinho = (prod) => {
+    const existe = carrinho.find(item => item.id_produto === prod._id);
+    if (existe) {
+      setCarrinho(carrinho.map(item => 
+        item.id_produto === prod._id ? { ...item, qtd: item.qtd + 1 } : item
+      ));
+    } else {
+      setCarrinho([...carrinho, { id_produto: prod._id, nome: prod.nome, preco: prod.preco, qtd: 1 }]);
+    }
+  };
+
+  const finalizarPedido = async () => {
+    if (carrinho.length === 0) {
+      alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
+      return;
+    }
+    try {
+      await api.post('/pedido', { itens: carrinho });
+      alert("🍭 Pedido enviado para a cozinha!");
+      setCarrinho([]);
+      carregarDados();
+      setPagHist(1); // Volta para a primeira página do histórico para ver o novo pedido
+    } catch (err) {
+      alert("Erro ao processar pedido");
+    }
+  };
+
+  const calcularTotal = () => carrinho.reduce((sum, i) => sum + i.preco * i.qtd, 0);
+
+  const podeCancelar = (dataPedido) => {
+    const diffEmHoras = Math.abs(new Date() - new Date(dataPedido)) / (1000 * 60 * 60);
+    return diffEmHoras <= 24;
+  };
+
+  return (
+    <div className="min-h-screen bg-sweet-gradient p-4 md:p-8">
+      
+      {/* HEADER */}
+      <header className="max-w-7xl mx-auto flex justify-between items-center mb-10">
+        <button onClick={() => navigate('/produtos')} className="btn-voltar">
+          <ArrowLeft size={20} /> <span>Menu</span>
+        </button>
+        <h1 className="text-3xl md:text-5xl font-black text-doce-preto text-center">
+          Área de <span className="text-pink-500 italic">Pedidos</span>
+        </h1>
+        <div className="w-24 md:w-32"></div> {/* Spacer para centralizar o h1 */}
+      </header>
+
+      <main className="max-w-7xl mx-auto">
+        
+        {/* BLOCO SUPERIOR: VITRINE + CARRINHO */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          
+          {/* VITRINE (2 COLUNAS NO DESKTOP) */}
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold mb-6 text-doce-preto flex items-center gap-2">
+               Nossas Delícias
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {produtosExibidos.map(p => (
+                <div key={p._id} className="card-vitrine">
+                  <div className="info-prod">
+                    <span className="cat-tag">{p.tipoProduto}</span>
+                    <h3>{p.nome}</h3>
+                    <p className="preco-tag">R$ {p.preco.toFixed(2)}</p>
+                  </div>
+                  <button onClick={() => adicionarAoCarrinho(p)} className="btn-add">
+                    +
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Paginação Vitrine */}
+            {totalPaginasProd > 1 && (
+              <div className="flex justify-center gap-4 mt-8">
+                <button disabled={pagProd === 1} onClick={() => setPagProd(p => p - 1)} className="btn-pag">
+                  <ChevronLeft />
+                </button>
+                <span className="font-bold flex items-center">{pagProd} / {totalPaginasProd}</span>
+                <button disabled={pagProd === totalPaginasProd} onClick={() => setPagProd(p => p + 1)} className="btn-pag">
+                  <ChevronRight />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* CARRINHO (1 COLUNA NO DESKTOP) */}
+          <div className="carrinho-container">
+            <div className="carrinho-header">
+              <ShoppingCart size={24} />
+              <h2>Meu Carrinho</h2>
+            </div>
+            <div className="carrinho-corpo">
+              {carrinho.length === 0 ? (
+                <p className="text-white/50 text-center text-sm mt-10">Vazio...</p>
+              ) : (
+                carrinho.map(item => (
+                  <div key={item.id_produto} className="carrinho-item">
+                    <div>
+                      <p className="font-bold text-sm">{item.nome}</p>
+                      <p className="text-pink-300 text-xs">{item.qtd}x R$ {item.preco}</p>
+                    </div>
+                    <button onClick={() => setCarrinho(carrinho.filter(i => i.id_produto !== item.id_produto))}>
+                      <Trash2 size={14} className="text-white/40 hover:text-red-400" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="carrinho-rodape">
+              <div className="carrinho-total">
+                <span>TOTAL:</span>
+                <span className="valor-total">R$ {calcularTotal().toFixed(2)}</span>
+              </div>
+              <button onClick={finalizarPedido} className="btn-finalizar">Finalizar</button>
+            </div>
+          </div>
+        </div>
+
+        {/* BLOCO INFERIOR: HISTÓRICO (LARGURA TOTAL) */}
+        <section className="bg-white/40 p-8 rounded-[40px] border-2 border-dashed border-pink-200 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <h2 className="text-2xl font-bold text-doce-preto flex items-center gap-2">
+              <Clock className="text-pink-500"/> Pedidos Anteriores
+            </h2>
+            <button onClick={() => {/* função pdf */}} className="btn-pdf-history">
+              <FileText size={18} /> Exportar Histórico
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {pedidosExibidos.map(p => (
+              <div key={p._id} className="item-historico-card">
+                <div className="topo-hist">
+                  <span className="data-hist">{new Date(p.data).toLocaleDateString()}</span>
+                  <span className="total-hist">R$ {p.total.toFixed(2)}</span>
+                </div>
+                <div className="lista-itens-scroll">
+                  {p.itens && p.itens.map((item, idx) => (
+                    <div key={idx} className="tag-item-pedido">
+                      {item.qtd}x {item.nome}
+                    </div>
+                  ))}
+                </div>
+                <div className="rodape-hist">
+                  {podeCancelar(p.data) ? (
+                    <button onClick={() => api.delete(`/pedido/${p._id}`).then(carregarDados)} className="btn-cancelar">
+                      Cancelar Pedido
+                    </button>
+                  ) : (
+                    <span className="status-finalizado"><CheckCircle size={14}/> Finalizado</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Paginação Histórico */}
+          {totalPaginasHist > 1 && (
+            <div className="flex justify-center gap-4 mt-10">
+              <button disabled={pagHist === 1} onClick={() => setPagHist(p => p - 1)} className="btn-pag">
+                <ChevronLeft />
+              </button>
+              <div className="flex gap-2">
+                {[...Array(totalPaginasHist)].map((_, i) => (
+                  <button 
+                    key={i} 
+                    onClick={() => setPagHist(i + 1)}
+                    className={`pag-num ${pagHist === i + 1 ? 'active' : ''}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              <button disabled={pagHist === totalPaginasHist} onClick={() => setPagHist(p => p + 1)} className="btn-pag">
+                <ChevronRight />
+              </button>
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+}
+
+
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { Trash2, Edit, Plus, FileText, X, ShoppingBag, LogOut, User, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import './Produtos.css';
+
+export default function Produtos() {
+  const [prods, setProds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+
+  const itensPorPagina = 6;
+  const navigate = useNavigate();
+  const isAdmin = localStorage.getItem('userTipo') === 'admin';
+  const userName = localStorage.getItem('userName') || 'Confeiteiro(a)';
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const res = await api.get('/produtos');
+      setProds(res.data);
+    } catch (err) {
+      console.error("Erro ao carregar produtos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Lógica de Paginação (Melhorada)
+  const indiceUltimoItem = paginaAtual * itensPorPagina;
+  const indicePrimeiroItem = indiceUltimoItem - itensPorPagina;
+  const produtosExibidos = prods.slice(indicePrimeiroItem, indiceUltimoItem);
+  const totalPaginas = Math.ceil(prods.length / itensPorPagina);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/';
+  };
+
+  const handleEdit = (p) => {
+    setEditingId(p._id);
+    setForm({ nome: p.nome, tipoProduto: p.tipoProduto, preco: p.preco, qtd: p.qtd });
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await api.put(`/produtos/${editingId}`, form);
+      } else {
+        await api.post('/produtos', form);
+      }
+      fecharModal();
+      loadProducts();
+    } catch (err) {
+      alert("Erro ao salvar dados.");
+    }
+  };
+
+  const fecharModal = () => {
+    setIsModalOpen(false);
+    setEditingId(null);
+    setForm({ nome: '', tipoProduto: '', preco: '', qtd: '' });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Deseja realmente remover este doce?")) {
+      try {
+        await api.delete(`/produtos/${id}`);
+        loadProducts();
+      } catch (err) {
+        alert("Erro ao excluir");
+      }
+    }
+  };
+
+  const handleDownloadPrecos = async () => {
+    try {
+      const res = await api.get('/relatorio/precos', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'tabela_precos.pdf');
+      link.click();
+    } catch (err) {
+      alert("Erro ao gerar PDF.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-sweet-gradient p-8">
+      {/* BARRA SUPERIOR DE USUÁRIO */}
+      <div className="max-w-6xl mx-auto flex justify-between items-center mb-6 bg-white/70 p-4 rounded-3xl backdrop-blur-md border border-white shadow-sm">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="bg-pink-500 p-2 rounded-full text-white">
+            <User size={18} />
+          </div>
+          <span className="text-doce-preto font-bold">
+            Olá, <span className="text-pink-600">{userName.split(' ')[0]}</span>!
+          </span>
+        </div>
+        <button onClick={handleLogout} className="btn-logoff text-xs md:text-sm">
+          <LogOut size={16} /> <span className="hidden md:inline">Sair</span>
+        </button>
+      </div>
+
+      <div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
+        <h1 className="text-3xl md:text-5xl font-black text-doce-preto mb-6">
+          Menu de <span className="text-pink-500">Delícias</span>
+        </h1>
+        <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+          <button onClick={() => navigate('/pedidos')} className="btn-pedidos w-full md:w-auto">
+            <ShoppingBag size={18} /> Fazer Pedido
+          </button>
+             <button onClick={() => navigate('/relatorios')} className="btn-admin-r w-full md:w-auto">
+              <FileText size={18}/> <span className="hidden md:inline"/> Relatórios
+            </button> 
+          {isAdmin && (
+
+            <button onClick={() => navigate('/precificacao')} className="btn-admin w-full md:w-auto">
+              <DollarSign size={18} /> Precificação
+            </button>
+          
+          )}
+          <button onClick={handleDownloadPrecos} className="btn-secondary flex-1 md:flex-none">
+            <FileText size={18} /> <span className="hidden md:inline">Tabela PDF</span>
+          </button>
+          {isAdmin && (
+            <button onClick={() => setIsModalOpen(true)} className="btn-primary flex-1 md:flex-none">
+              <Plus size={18} /> <span className="hidden md:inline">Novo</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* LISTAGEM DE PRODUTOS PAGINADA */}
+      {loading ? (
+        <div className="loader-container"><div className="loader"></div></div>
+      ) : (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {/* AQUI ESTAVA O ERRO DE LÓGICA: use produtosExibidos */}
+          {produtosExibidos.map(p => (
+            <div key={p._id} className="card-produto animate-fade-in">
+              <div className="badge-preco">R$ {parseFloat(p.preco).toFixed(2)}</div>
+              <div className="mb-6">
+                <span className="categoria-label">{p.tipoProduto}</span>
+                <h3 className="nome-produto">{p.nome}</h3>
+              </div>
+              <div className="flex justify-between items-center border-t border-pink-50 pt-4">
+                <span className="estoque-label">Estoque: <b>{p.qtd} un</b></span>
+                {isAdmin && (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEdit(p)} className="btn-icon-edit"><Edit size={18}/></button>
+                    <button onClick={() => handleDelete(p._id)} className="btn-icon-delete"><Trash2 size={18}/></button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* CONTROLES DE PAGINAÇÃO */}
+      {totalPaginas > 1 && (
+        <div className="max-w-6xl mx-auto flex justify-center items-center gap-4 mt-12 pb-10">
+          <button 
+            disabled={paginaAtual === 1}
+            onClick={() => setPaginaAtual(p => p - 1)}
+            className="p-2 rounded-full bg-white border border-pink-100 disabled:opacity-30 hover:bg-pink-50 transition-colors"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <div className="flex gap-2">
+            {[...Array(totalPaginas)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPaginaAtual(i + 1)}
+                className={`w-10 h-10 rounded-xl font-bold transition-all ${paginaAtual === i + 1 ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-gray-400 border border-pink-50'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button 
+            disabled={paginaAtual === totalPaginas}
+            onClick={() => setPaginaAtual(p => p + 1)}
+            className="p-2 rounded-full bg-white border border-pink-100 disabled:opacity-30 hover:bg-pink-50 transition-colors"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      )}
+
+      {/* MODAL (FOI MOVIDO PARA DENTRO DA DIV PRINCIPAL E ANTES DO FIM DO RETURN) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-doce-preto/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-8 rounded-[40px] w-full max-w-md shadow-2xl border-b-8 border-pink-500 relative">
+            <button onClick={fecharModal} className="absolute top-6 right-6 text-gray-400 hover:text-black">
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-black mb-6 text-doce-preto">
+              {editingId ? 'Editar Doce' : 'Cadastrar Doce'}
+            </h2>
+            <form onSubmit={handleSave} className="space-y-4">
+              <input 
+                value={form.nome}
+                placeholder="Nome da delícia" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, nome: e.target.value})}
+                required
+              />
+              <input 
+                value={form.tipoProduto}
+                placeholder="Categoria (ex: Bolos)" 
+                className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                onChange={e => setForm({...form, tipoProduto: e.target.value})}
+                required
+              />
+              <div className="flex gap-4">
+                <input 
+                  value={form.preco}
+                  type="number" step="0.01" placeholder="Preço" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, preco: e.target.value})}
+                  required
+                />
+                <input 
+                  value={form.qtd}
+                  type="number" placeholder="Estoque" 
+                  className="w-1/2 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  onChange={e => setForm({...form, qtd: e.target.value})}
+                  required
+                />
+              </div>
+              <button type="submit" className="w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4">
+                {editingId ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+
+pedidos.js
+
+
+
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { ShoppingCart, Trash2, Clock, CheckCircle, ChevronLeft, ChevronRight, FileText, ArrowLeft } from 'lucide-react';
+import './Pedidos.css';
+
+export default function Pedidos() {
+  const [produtos, setProdutos] = useState([]);
+  const [carrinho, setCarrinho] = useState([]);
+  const [meusPedidos, setMeusPedidos] = useState([]);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [loading, setLoading] = useState(true);
+  
+  const itensPorPagina = 4;
+  const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
+
+  const carregarDados = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [resProds, resPedidos] = await Promise.all([
+        api.get('/produtos'),
+        api.get('/pedido')
+      ]);
+      setProdutos(resProds.data);
+      // Filtra os pedidos do usuário logado
+      setMeusPedidos(resPedidos.data.filter(p => p.usuario_id === userId));
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
+  // Lógica de Paginação
+  const indiceUltimo = paginaAtual * itensPorPagina;
+  const indicePrimeiro = indiceUltimo - itensPorPagina;
+  const produtosExibidos = produtos.slice(indicePrimeiro, indiceUltimo);
+  const totalPaginas = Math.ceil(produtos.length / itensPorPagina);
+
+  const adicionarAoCarrinho = (prod) => {
+    const existe = carrinho.find(item => item.id_produto === prod._id);
+    if (existe) {
+      setCarrinho(carrinho.map(item => 
+        item.id_produto === prod._id ? { ...item, qtd: item.qtd + 1 } : item
+      ));
+    } else {
+      setCarrinho([...carrinho, { id_produto: prod._id, nome: prod.nome, preco: prod.preco, qtd: 1 }]);
+    }
+  };
+
+  const finalizarPedido = async () => {
+    if (carrinho.length === 0) {
+      alert("⚠️ Sua doçura está vazia! Adicione itens ao carrinho antes de confirmar.");
+      return;
+    }
+    try {
+      await api.post('/pedido', { itens: carrinho });
+      alert("🍭 Pedido realizado com sucesso!");
+      setCarrinho([]);
+      carregarDados();
+    } catch (err) {
+      alert(err.response?.data?.error || "Erro ao processar pedido");
+    }
+  };
+
+  const handleDownloadMeusPedidos = async () => {
+    try {
+      // Endpoint sugerido para o seu Flask gerar o PDF do histórico do usuário
+      const res = await api.get(`/relatorio/pedidos/${userId}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `meus_pedidos.pdf`);
+      link.click();
+    } catch (err) {
+      alert("Erro ao gerar PDF do histórico.");
+    }
+  };
+
+  const calcularTotal = () => carrinho.reduce((sum, i) => sum + i.preco * i.qtd, 0);
+
+  const podeCancelar = (dataPedido) => {
+    const dataP = new Date(dataPedido);
+    const agora = new Date();
+    const diffEmHoras = Math.abs(agora - dataP) / (1000 * 60 * 60); // Corrigido para Horas
+    return diffEmHoras <= 24;
+  };
+
+  return (
+    <div className="min-h-screen bg-sweet-gradient p-4 md:p-8">
+      {/* HEADER NAVEGAÇÃO */}
+      <div className="max-w-7xl mx-auto flex justify-between items-center mb-8">
+        <button onClick={() => navigate('/produtos')} className="btn-voltar">
+          <ArrowLeft size={20} /> <span className="hidden md:inline">Voltar ao Menu</span>
+        </button>
+        <h1 className="text-3xl md:text-5xl font-black text-doce-preto">
+          Novo <span className="text-pink-500 italic">Pedido</span>
+        </h1>
+        <button onClick={handleDownloadMeusPedidos} className="btn-pdf-history">
+          <FileText size={20} /> <span className="hidden md:inline">Exportar Pedidos</span>
+        </button>
+      </div>
+      
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* VITRINE DE PRODUTOS */}
+        <div className="lg:col-span-2 space-y-8">
+          {loading ? (
+            <div className="loader-container"><div className="loader"></div></div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {produtosExibidos.map(p => (
+                  <div key={p._id} className="card-vitrine">
+                    <div className="info-prod">
+                      <span className="cat-tag">{p.tipoProduto}</span>
+                      <h3>{p.nome}</h3>
+                      <p className="preco-tag">R$ {p.preco.toFixed(2)}</p>
+                      <p className="estoque-tag">Disponível: {p.qtd}</p>
+                    </div>
+                    <button onClick={() => adicionarAoCarrinho(p)} className="btn-add">
+                      Adicionar
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* PAGINAÇÃO VITRINE */}
+              {totalPaginas > 1 && (
+                <div className="flex justify-center items-center gap-3 mt-6">
+                  <button disabled={paginaAtual === 1} onClick={() => setPaginaAtual(p => p - 1)} className="btn-pag">
+                    <ChevronLeft size={20} />
+                  </button>
+                  <span className="text-doce-preto font-bold">{paginaAtual} de {totalPaginas}</span>
+                  <button disabled={paginaAtual === totalPaginas} onClick={() => setPaginaAtual(p => p + 1)} className="btn-pag">
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* HISTÓRICO DE PEDIDOS DETALHADO */}
+          <div className="mt-12 bg-white/40 p-6 rounded-[32px] border-2 border-dashed border-pink-200 backdrop-blur-sm">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-doce-preto">
+              <Clock size={24} className="text-pink-500"/> Meus Pedidos Recentes
+            </h2>
+            <div className="space-y-4">
+              {meusPedidos.length === 0 ? (
+                <p className="text-gray-500 italic">Você ainda não realizou pedidos.</p>
+              ) : (
+                meusPedidos.map(p => (
+                  <div key={p._id} className="item-historico">
+                    <div className="detalhes-pedido">
+                      <div className="topo-hist">
+                        <span className="data-hist">{new Date(p.data).toLocaleDateString()}</span>
+                        <span className="total-hist">R$ {p.total.toFixed(2)}</span>
+                      </div>
+                      <div className="lista-itens-hist">
+                        {p.itens && p.itens.map((item, idx) => (
+                          <span key={idx} className="tag-item-pedido">
+                            {item.qtd}x {item.nome}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="acoes-hist">
+                      {podeCancelar(p.data) ? (
+                        <button onClick={() => api.delete(`/pedido/${p._id}`).then(carregarDados)} className="btn-cancelar">
+                          <Trash2 size={14}/> Cancelar
+                        </button>
+                      ) : (
+                        <span className="status-finalizado"><CheckCircle size={14}/> Concluído</span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* CARRINHO LATERAL (STICKY) */}
+        <div className="carrinho-container">
+          <div className="carrinho-header">
+            <ShoppingCart size={28} />
+            <h2>Carrinho Doce</h2>
+          </div>
+          
+          <div className="carrinho-corpo">
+            {carrinho.length === 0 ? (
+              <div className="carrinho-vazio">
+                <p>O cheiro está ótimo, mas seu carrinho está vazio!</p>
+              </div>
+            ) : (
+              carrinho.map(item => (
+                <div key={item.id_produto} className="carrinho-item">
+                  <div className="carrinho-info">
+                    <p className="carrinho-nome">{item.nome}</p>
+                    <p className="carrinho-preco">{item.qtd}x R$ {item.preco.toFixed(2)}</p>
+                  </div>
+                  <button onClick={() => setCarrinho(carrinho.filter(i => i.id_produto !== item.id_produto))} className="btn-remove-item">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="carrinho-rodape">
+            <div className="carrinho-total">
+              <span>TOTAL:</span>
+              <span className="valor-total">R$ {calcularTotal().toFixed(2)}</span>
+            </div>
+            <button 
+              onClick={finalizarPedido}
+              className="btn-finalizar"
+            >
+              Confirmar Doçura
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+

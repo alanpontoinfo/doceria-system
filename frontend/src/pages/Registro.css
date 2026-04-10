@@ -1,0 +1,185 @@
+/* ESTRUTURA E RESPONSIVIDADE */
+.reg-container {
+  min-height: 100vh;
+  display: flex;
+  background-color: #fdfcf0; /* Cor creme do projeto */
+}
+
+.reg-info {
+  flex: 1;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.reg-form-wrapper {
+  flex: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* COMPONENTES DE TEXTO */
+.badge-novo {
+  background: #ec4899;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.beneficios-list {
+  margin-top: 2.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.beneficios-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #d1d5db;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+/* CARD DE REGISTRO */
+.reg-card {
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  padding: 3rem;
+  border-radius: 40px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce7f3;
+}
+
+.logo-mini {
+  background: #1a1a1a;
+  color: #ffb7c5;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.reg-header h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #1a1a1a;
+}
+
+.reg-header p {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* INPUTS */
+.input-field label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon-wrapper .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #d1d5db;
+}
+
+.input-icon-wrapper input {
+  width: 100%;
+  padding: 14px 14px 14px 44px;
+  background: #f9fafb;
+  border: 2px solid #f3f4f6;
+  border-radius: 16px;
+  transition: all 0.3s;
+}
+
+.input-icon-wrapper input:focus {
+  border-color: #ffb7c5;
+  background: white;
+  outline: none;
+}
+
+/* BOTÃO */
+.btn-registrar {
+  width: 100%;
+  background: #1a1a1a;
+  color: white;
+  padding: 1rem;
+  border-radius: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  margin-top: 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-registrar:hover {
+  background: #ec4899;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(236, 72, 153, 0.2);
+}
+
+/* ASSINATURA E LINKS */
+.dev-signature {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dev-signature a {
+  color: #ec4899;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.footer-link {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.footer-link span {
+  color: #ec4899;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 1024px) {
+  .reg-info { display: none; }
+  .reg-form-wrapper { background: #fdfcf0; }
+  .reg-card { padding: 2rem; }
+}
+
+@media (max-width: 480px) {
+  .reg-card { border-radius: 20px; }
+  .grid-cols-2 { grid-template-columns: 1fr; }
+}

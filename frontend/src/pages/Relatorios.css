@@ -1,0 +1,122 @@
+/* VARIÁVEIS DE CORES REUTILIZADAS */
+:root {
+  --doce-rosa: #FFB7C5;
+  --doce-preto: #1A1A1A;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+}
+
+/* CONTAINER PRINCIPAL */
+.bg-sweet-gradient {
+  background: linear-gradient(135deg, #FFFDD0 0%, #fdfcf0 100%);
+}
+
+.btn-voltar-rel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--pink-500);
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-voltar-rel:hover {
+  transform: translateX(-5px);
+}
+
+/* ESTILO DOS CARDS */
+.card-relatorio {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 3rem 2rem;
+  border-radius: 45px;
+  border: 2px solid white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+}
+
+.card-relatorio:hover {
+  transform: translateY(-10px);
+  background: white;
+  box-shadow: 0 30px 60px rgba(236, 72, 153, 0.1);
+  border-color: var(--doce-rosa);
+}
+
+/* ÍCONES */
+.icon-wrapper {
+  width: 70px;
+  height: 70px;
+  color: white;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s;
+}
+
+.card-relatorio:hover .icon-wrapper {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+/* BOTÕES */
+.btn-gerar-pdf-preto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--doce-preto);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 100px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.btn-gerar-pdf-preto:hover {
+  background: var(--pink-500);
+  transform: scale(1.05);
+}
+
+.btn-gerar-pdf-borda {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  color: var(--doce-preto);
+  padding: 1rem 2.5rem;
+  border-radius: 100px;
+  font-weight: 800;
+  border: 2px solid var(--doce-preto);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-gerar-pdf-borda:hover {
+  background: var(--doce-preto);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* ANIMAÇÃO DE ENTRADA */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-relatorio {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.card-relatorio:nth-child(2) {
+  animation-delay: 0.2s;
+}

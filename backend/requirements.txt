@@ -1,0 +1,5 @@
+Flask==2.2.5
+flask_cors==6.0.2
+fpdf2==2.8.7
+pymongo==4.16.0
+python-dotenv==1.2.2

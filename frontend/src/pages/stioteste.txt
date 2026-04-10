@@ -1,0 +1,108 @@
+/* EFEITOS DE HOVER E INTERATIVIDADE */
+
+/* Botão de Pedidos (Destaque Principal) */
+.btn-pedidos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--doce-preto);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn-pedidos:hover {
+  background-color: var(--pink-500);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+}
+
+/* Botão de Logoff */
+.btn-logoff {
+  background: none;
+  border: 2px solid transparent;
+  color: #ef4444;
+  padding: 6px 15px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logoff:hover {
+  background-color: #fee2e2;
+  border-color: #fecaca;
+}
+
+/* Botão Primário (Novo Doce) */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--pink-500);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4);
+}
+
+/* Cards de Produto - Efeito de Elevação */
+.card-produto {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border: 2px solid #fff1f2;
+  padding: 1.5rem;
+  border-radius: 32px;
+  position: relative;
+  transition: all 0.4s ease;
+  cursor: default;
+}
+
+.card-produto:hover {
+  transform: translateY(-10px);
+  border-color: var(--doce-rosa);
+  box-shadow: 0 20px 40px rgba(255, 183, 197, 0.2);
+}
+
+/* Botões de Ícone (Edit/Delete) */
+.btn-icon-edit, .btn-icon-delete {
+  padding: 8px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #f9fafb;
+}
+
+.btn-icon-edit:hover { background-color: #dbeafe; color: #3b82f6; }
+.btn-icon-delete:hover { background-color: #fee2e2; color: #ef4444; }
+
+/* Utilitário de Texto */
+.categoria-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pink-500);
+  font-weight: 800;
+}
+
+.nome-produto {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--doce-preto);
+  margin-top: 4px;
+}
