@@ -40,7 +40,8 @@ export default function Produtos() {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = '/';
+    navigate('/');
+	  {/*window.location.href = '/';*/}
   };
 
   const handleEdit = (p) => {

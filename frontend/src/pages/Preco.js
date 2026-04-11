@@ -25,12 +25,12 @@ export default function Preco() {
     
     setLoading(true);
     try {
-      const res = await api.post('/api/produtos/precificar', form);
+      const res = await api.post('/produtos/precificar', form);
       const dados = res.data.calculo_detalhado;
       
       // Cálculo do valor unitário (Preço Final Sugerido / Qtd Produzida)
       const precoFinal = parseFloat(dados['5_preco_final_sugerido']);
-      const valorUnitario = form.qtd_produzida /  precoFinal;
+      const valorUnitario = form.qtd_produzida / precoFinal;
 
       setResultado({
         ...dados,
@@ -47,7 +47,7 @@ export default function Preco() {
     <div className="min-h-screen bg-sweet-gradient p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         
-        <button onClick={() => navigate('/api/produtos')} className="btn-voltar-preco mb-6">
+        <button onClick={() => navigate('/produtos')} className="btn-voltar-preco mb-6">
           <ArrowLeft size={20} /> Voltar ao Menu
         </button>
 

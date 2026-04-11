@@ -25,8 +25,8 @@ export default function Pedidos() {
     try {
       setLoading(true);
       const [resProds, resPedidos] = await Promise.all([
-        api.get('/api/produtos'),
-        api.get('/api/pedido')
+        api.get('/produtos'),
+        api.get('/pedido')
       ]);
       setProdutos(resProds.data);
       setMeusPedidos(resPedidos.data.filter(p => p.usuario_id === userId));
@@ -66,7 +66,7 @@ export default function Pedidos() {
       return;
     }
     try {
-      await api.post('/api/pedido', { itens: carrinho });
+      await api.post('/pedido', { itens: carrinho });
       alert("🍭 Pedido enviado para a cozinha!");
       setCarrinho([]);
       carregarDados();
@@ -86,7 +86,7 @@ export default function Pedidos() {
 
   const handleDownloadPrecos = async () => {
     try {
-      const res = await api.get('/api/relatorio/meus-pedidos',{ headers: { 'user-id': userId }, responseType: 'blob' });
+      const res = await api.get('/relatorio/meus-pedidos',{ headers: { 'user-id': userId }, responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -103,7 +103,7 @@ export default function Pedidos() {
       
       {/* HEADER */}
       <header className="max-w-7xl mx-auto flex justify-between items-center mb-10">
-        <button onClick={() => navigate('/api/produtos')} className="btn-voltar">
+        <button onClick={() => navigate('/produtos')} className="btn-voltar">
           <ArrowLeft size={20} /> <span>Menu</span>
         </button>
         <h1 className="text-3xl md:text-5xl font-black text-doce-preto text-center">
@@ -215,7 +215,7 @@ export default function Pedidos() {
                 </div>
                 <div className="rodape-hist">
                   {podeCancelar(p.data) ? (
-                    <button onClick={() => api.delete(`/api/pedido/${p._id}`).then(carregarDados)} className="btn-cancelar">
+                    <button onClick={() => api.delete(`/pedido/${p._id}`).then(carregarDados)} className="btn-cancelar">
                       Cancelar Pedido
                     </button>
                   ) : (
