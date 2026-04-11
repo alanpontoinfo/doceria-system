@@ -23,7 +23,7 @@ export default function Registro() {
 
     setCarregando(true);
     try {
-      await api.post('/registro', formData);
+      await api.post('/api/registro', formData);
       alert("Conta criada com sucesso! Agora faça seu login.");
       navigate('/');
     } catch (err) {
