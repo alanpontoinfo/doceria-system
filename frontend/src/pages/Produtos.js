@@ -112,7 +112,7 @@ export default function Produtos() {
         </button>
       </div>
 
-      <div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
+	  {/*<div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
         <h1 className="text-3xl md:text-5xl font-black text-doce-preto mb-6">
           Menu de <span className="text-pink-500">Delícias</span>
         </h1>
@@ -134,14 +134,60 @@ export default function Produtos() {
           )}
      {/*      <button onClick={handleDownloadPrecos} className="btn-cursorpointer btn-secondary flex-1 md:flex-none">
             <FileText size={18} /> <span className="hidden md:inline">Tabela PDF</span>
-          </button>*/}
+          </button>
           {isAdmin && (
             <button onClick={() => setIsModalOpen(true)} className="btn-primary w-full md:w-auto">
               <Plus size={16} /> <span className="hidden md:inline">Novo</span>
             </button>
           )}
         </div>
-      </div>
+      </div>*/}
+
+	  
+
+    {/* CONTAINER RESPONSIVO DE BOTÕES */}
+    <div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
+  <h1 className="text-3xl md:text-5xl font-black text-doce-preto mb-8">
+    Menu de <span className="text-pink-500">Delícias</span>
+  </h1>
+
+  {/* AQUI ESTÁ A CHAMADA DA CLASSE CSS */}
+  <div className="actions-grid">
+    
+    <button 
+      onClick={() => navigate('/pedidos')} 
+      className="btn-pedidos w-full md:w-auto"
+    >
+      <ShoppingBag size={20} /> Fazer Pedido
+    </button>
+
+    {isAdmin && (
+      <>
+        <button 
+          onClick={() => navigate('/relatorios')} 
+          className="btn-relatorio w-full md:w-auto"
+        >
+          <FileText size={18} /> Relatórios
+        </button>
+
+        <button 
+          onClick={() => navigate('/precificar')} 
+          className="btn-admin w-full md:w-auto"
+        >
+          <DollarSign size={18} /> Precificar
+        </button>
+
+        <button 
+          onClick={() => setIsModalOpen(true)} 
+          className="btn-primary w-full md:w-auto"
+        >
+          <Plus size={18} /> Novo
+        </button>
+      </>
+    )}
+  </div>
+</div>
+
 
       {/* LISTAGEM DE PRODUTOS PAGINADA */}
       {loading ? (

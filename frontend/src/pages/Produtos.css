@@ -211,6 +211,78 @@
   to { transform: rotate(360deg); }
 }
 
+/* --- NOVA SEÇÃO DE BOTÕES RESPONSIVOS --- */
+
+/* Container que envolve os botões de ação */
+.actions-wrapper {
+  display: flex;
+  flex-wrap: wrap; /* Isso permite que os botões pulem de linha no celular */
+  gap: 1rem;       /* Espaçamento entre eles */
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+/* Base comum para todos os botões de ação para manter consistência */
+.btn-action-base {
+  flex: 1 1 auto;      /* Faz os botões crescerem igualmente */
+  min-width: 160px;    /* Evita que fiquem muito estreitos */
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap; /* Evita que o texto do botão quebre em duas linhas */
+}
+
+/* Estilo específico para Relatórios (usando um tom neutro/preto do seu tema) */
+.btn-relatorio {
+  background-color: var(--doce-preto);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-relatorio:hover {
+  background-color: var(--gray-500);
+  transform: translateY(-2px);
+}
+
+
+
+
+/* No seu Produtos.css */
+
+.actions-grid {
+  display: flex;
+  flex-wrap: wrap; /* Permite quebrar linha no celular */
+  gap: 12px;
+  justify-content: center; /* Centralizado no mobile */
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+/* Quando a tela for maior (Desktop), alinha à esquerda */
+@media (min-width: 768px) {
+  .actions-grid {
+    justify-content: flex-start;
+  }
+}
+
+/* Garante que os botões dentro do grid se comportem bem */
+.actions-grid button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 45px;
+}
+
 
 /* Botão de Precificação (Destaque Admin) */
 .btn-admin {
@@ -258,12 +330,25 @@
   box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
 }*/
 
+
+
+/* Ajuste de responsividade para telas bem pequenas (celulares) */
+@media (max-width: 640px) {
+  .actions-wrapper {
+    flex-direction: column; /* Empilha um em cima do outro */
+    align-items: stretch;
+  }
+
+  .btn-action-base {
+    width: 100%; /* Botão ocupa a largura toda no mobile */
+  }
+}
 /* Ajustes de Mobile UX */
-@media (max-width: 320px) {
-  .btn-pedidos, .btn-admin, .btn-primary{
+@media (max-width: 640px) {
+ /* .btn-pedidos, .btn-admin, .btn-primary{
     font-size: 8px;
     padding: 6px;
-  }
+  }*/
   
   .card-produto {
     padding: 1.25rem;
@@ -274,6 +359,8 @@
     font-size: 2rem;
   }
 }
+
+
 
 /* Animação suave para entrada dos cards */
 .animate-fade-in {
