@@ -306,9 +306,9 @@
 
 /*.actions-grid {
   display: flex;
-  flex-wrap: wrap; /* Permite quebrar linha no celular */
+  flex-wrap: wrap; Permite quebrar linha no celular 
   gap: 12px;
-  justify-content: center; /* Centralizado no mobile 
+  justify-content: center;  Centralizado no mobile 
   margin-bottom: 2rem;
   width: 100%;
 }*/
@@ -330,13 +330,13 @@
 }
 */
 
-/* Botão de Precificação (Destaque Admin) 
+/* Botão de Precificação (Destaque Admin)*/ 
 .btn-admin {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #4f46e5; /* Roxo para diferenciar do rosa/preto 
+  background-color: #4f46e5; /* Roxo para diferenciar do rosa/preto*/ 
   color: white;
   padding: 10px 24px;
   border-radius: 999px;
@@ -354,7 +354,7 @@
 
 .btn-cursorpointer{
 	cursor:pointer;
-}*/
+}
 /*.btn-admin-r {
   display: flex;
   align-items: center;
@@ -368,12 +368,12 @@
   border: none;
   cursor: pointer;
   transition: all 0.3s;
-}
+}*/
 
-.btn-adminrr:hover {
+/*.btn-adminrr:hover {
   background-color: #4338ca;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+	  transform: translateY(-2px);
+	  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
 }*/
 
 
