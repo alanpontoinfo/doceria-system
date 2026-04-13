@@ -142,17 +142,69 @@ export default function Produtos() {
           )}
         </div>
       </div>*/}
-
+	  
 	  
 
     {/* CONTAINER RESPONSIVO DE BOTÕES */}
-    <div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
+
+
+<div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
   <h1 className="text-3xl md:text-5xl font-black text-doce-preto mb-8">
     Menu de <span className="text-pink-500">Delícias</span>
   </h1>
 
-  {/* AQUI ESTÁ A CHAMADA DA CLASSE CSS */}
+  {/* O container agora gerencia o fluxo via Produtos.css */}
   <div className="actions-grid">
+    
+    <button 
+      onClick={() => navigate('/pedidos')} 
+      className="btn-pedidos shadow-lg"
+    >
+      <ShoppingBag size={20} /> 
+      <span>Fazer Pedido</span>
+    </button>
+
+    {isAdmin && (
+      <>
+        <button 
+          onClick={() => navigate('/relatorios')} 
+          className="btn-relatorio"
+        >
+          <FileText size={18} /> 
+          <span>Relatórios</span>
+        </button>
+
+        <button 
+          onClick={() => navigate('/precificar')} 
+          className="btn-admin"
+        >
+          <DollarSign size={18} /> 
+          <span>Precificar</span>
+        </button>
+
+        <button 
+          onClick={() => setIsModalOpen(true)} 
+          className="btn-primary"
+        >
+          <Plus size={18} /> 
+          <span>Novo Doce</span>
+        </button>
+      </>
+    )}
+  </div>
+</div>
+
+
+
+
+	  {/*
+    <div className="max-w-6xl mx-auto mb-10 text-center md:text-left">
+  <h1 className="text-3xl md:text-5xl font-black text-doce-preto mb-8">
+    Menu de <span className="text-pink-500">Delícias</span>
+  </h1>
+*/}
+  {/* AQUI ESTÁ A CHAMADA DA CLASSE CSS */}
+	  {/*<div className="actions-grid">
     
     <button 
       onClick={() => navigate('/pedidos')} 
@@ -186,7 +238,7 @@ export default function Produtos() {
       </>
     )}
   </div>
-</div>
+</div>*/}
 
 
       {/* LISTAGEM DE PRODUTOS PAGINADA */}

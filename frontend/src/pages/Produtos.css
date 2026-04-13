@@ -223,16 +223,16 @@
   width: 100%;
 }
 
-/* Base comum para todos os botões de ação para manter consistência */
+/* Base comum para todos os botões de ação para manter consistência 
 .btn-action-base {
-  flex: 1 1 auto;      /* Faz os botões crescerem igualmente */
-  min-width: 160px;    /* Evita que fiquem muito estreitos */
+  flex: 1 1 auto;      /* Faz os botões crescerem igualmente 
+  min-width: 160px;    /* Evita que fiquem muito estreitos 
   justify-content: center;
   text-align: center;
-  white-space: nowrap; /* Evita que o texto do botão quebre em duas linhas */
-}
+  white-space: nowrap; /* Evita que o texto do botão quebre em duas linhas 
+}*/
 
-/* Estilo específico para Relatórios (usando um tom neutro/preto do seu tema) */
+/* Estilo específico para Relatórios (usando um tom neutro/preto do seu tema) 
 .btn-relatorio {
   background-color: var(--doce-preto);
   color: white;
@@ -251,30 +251,76 @@
 .btn-relatorio:hover {
   background-color: var(--gray-500);
   transform: translateY(-2px);
-}
+}*/
 
 
 
 
 /* No seu Produtos.css */
 
+
+
+/* Container de Ações - O coração da responsividade */
 .actions-grid {
+  display: flex;
+  flex-direction: column; /* Começa em coluna (mobile-first) */
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Transição para horizontal em telas médias (Tablets/Desktops) */
+@media (min-width: 768px) {
+  .actions-grid {
+    flex-direction: row;    /* Muda para horizontal */
+    align-items: center;    /* Alinha verticalmente no centro */
+    justify-content: flex-start; /* Alinha os botões à esquerda */
+    width: auto;
+  }
+}
+
+/* Base dos botões para garantir que fiquem bonitos em ambos os modos */
+.btn-pedidos, .btn-admin, .btn-primary, .btn-relatorio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px; /* Formato pílula padrão do projeto */
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap; /* Impede que o texto quebre linha dentro do botão */
+}
+
+/* Cores específicas mantendo seu padrão */
+.btn-relatorio {
+  background-color: var(--doce-preto);
+  color: white;
+}
+.btn-relatorio:hover {
+  background-color: var(--gray-500);
+  transform: translateY(-2px);
+}
+
+/*.actions-grid {
   display: flex;
   flex-wrap: wrap; /* Permite quebrar linha no celular */
   gap: 12px;
-  justify-content: center; /* Centralizado no mobile */
+  justify-content: center; /* Centralizado no mobile 
   margin-bottom: 2rem;
   width: 100%;
-}
+}*/
 
-/* Quando a tela for maior (Desktop), alinha à esquerda */
+/* Quando a tela for maior (Desktop), alinha à esquerda 
 @media (min-width: 768px) {
   .actions-grid {
     justify-content: flex-start;
   }
 }
-
-/* Garante que os botões dentro do grid se comportem bem */
+*/
+/* Garante que os botões dentro do grid se comportem bem 
 .actions-grid button {
   display: inline-flex;
   align-items: center;
@@ -282,15 +328,15 @@
   gap: 8px;
   min-height: 45px;
 }
+*/
 
-
-/* Botão de Precificação (Destaque Admin) */
+/* Botão de Precificação (Destaque Admin) 
 .btn-admin {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: #4f46e5; /* Roxo para diferenciar do rosa/preto */
+  background-color: #4f46e5; /* Roxo para diferenciar do rosa/preto 
   color: white;
   padding: 10px 24px;
   border-radius: 999px;
@@ -308,7 +354,7 @@
 
 .btn-cursorpointer{
 	cursor:pointer;
-}
+}*/
 /*.btn-admin-r {
   display: flex;
   align-items: center;
@@ -332,17 +378,18 @@
 
 
 
-/* Ajuste de responsividade para telas bem pequenas (celulares) */
+/* Ajuste de responsividade para telas bem pequenas (celulares) 
 @media (max-width: 640px) {
   .actions-wrapper {
-    flex-direction: column; /* Empilha um em cima do outro */
+    flex-direction: column; /* Empilha um em cima do outro 
     align-items: stretch;
   }
 
   .btn-action-base {
-    width: 100%; /* Botão ocupa a largura toda no mobile */
+    width: 100%; /* Botão ocupa a largura toda no mobile 
   }
-}
+}*/
+
 /* Ajustes de Mobile UX */
 @media (max-width: 640px) {
  /* .btn-pedidos, .btn-admin, .btn-primary{
