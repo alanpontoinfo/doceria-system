@@ -259,10 +259,10 @@
 }*/
 
 /* Ajustes de Mobile UX */
-@media (max-width: 480px) {
+@media (max-width: 320px) {
   .btn-pedidos, .btn-admin, .btn-primary{
-    font-size: 14px;
-    padding: 12px;
+    font-size: 8px;
+    padding: 6px;
   }
   
   .card-produto {
