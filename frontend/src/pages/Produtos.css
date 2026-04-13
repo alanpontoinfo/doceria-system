@@ -259,7 +259,7 @@
 }*/
 
 /* Ajustes de Mobile UX */
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .btn-pedidos, .btn-admin, .btn-primary{
     font-size: 14px;
     padding: 12px;
