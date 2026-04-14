@@ -166,7 +166,7 @@ export default function Pedidos() {
                   <div className="info-prod">
                     <span className="cat-tag">{p.tipoProduto}</span>
                     <h3>{p.nome}</h3>
-                    <p className="preco-tag">R$ {p.preco.toFixed(2)}</p>
+                    <p className="preco-tag">R$ {(Number(p.preco) || 0).toFixed(2)}</p>
                   </div>
                   <button onClick={() => adicionarAoCarrinho(p)} className="btn-add">
                     +
