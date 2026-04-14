@@ -101,16 +101,6 @@ export default function Pedidos() {
   }
 
   // --- PROCESSO DE ENVIO ---
-  try {
-    await api.post('/pedido', { itens: carrinho });
-    alert("🍭 Pedido enviado para a cozinha!");
-    setCarrinho([]);
-    carregarDados(); // Atualiza a lista de produtos (diminuindo o estoque visualmente)
-    setPagHist(1);
-  } catch (err) {
-    alert("Erro ao processar pedido");
-  }
-};
 
   // Se passou em todas as validações, envia para a API
   try {
