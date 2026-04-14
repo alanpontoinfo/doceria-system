@@ -111,11 +111,10 @@ export default function Pedidos() {
     alert("Erro ao processar pedido");
   }
 };*/
-
-	const finalizarPedido = async () => {
-  if (carrinho.length === 0) {
-    alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
-    return;
+  const finalizarPedido = async () => {
+    if (carrinho.length === 0) {
+      alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
+      return;
   }
 
   // Percorre o carrinho para validar o estoque de cada item
@@ -248,23 +247,13 @@ export default function Pedidos() {
                 ))
               )}
             </div>
-	  {/*<div className="carrinho-rodape">
+	     <div className="carrinho-rodape">
               <div className="carrinho-total">
                 <span>TOTAL:</span>
                 <span className="valor-total">R$ {calcularTotal().toFixed(2)}</span>
               </div>
               <button onClick={finalizarPedido} className="btn-finalizar">Finalizar</button>
-            </div>*/}
-	  <div className="carrinho-rodape">
-  <div className="carrinho-total">
-    <span>TOTAL:</span>
-    <span className="valor-total">R$ {calcularTotal().toFixed(2)}</span>
-  </div>
-   <button
-    onClick={finalizarPedido}
-    className={`btn-finalizar ${carrinho.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-    disabled={carrinho.length === 0}> Finalizar </button>
-    </div>
+            </div>
           </div>
         </div>
 
