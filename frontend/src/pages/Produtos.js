@@ -340,7 +340,7 @@ export default function Produtos() {
             value={form.preco}
             type="number" step="0.01" 
             placeholder="Preço"
-            className="flex-1 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
+            className="w-m-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
             onChange={e => setForm({...form, preco: e.target.value})}
             required
           />
@@ -348,7 +348,7 @@ export default function Produtos() {
             value={form.qtd}
             type="number" 
             placeholder="Estoque"
-            className="flex-1 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
+            className="w-m-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
             onChange={e => setForm({...form, qtd: e.target.value})}
             required
           />
