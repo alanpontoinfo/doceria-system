@@ -196,6 +196,7 @@
 .border-pink-500 { border-bottom-color: var(--pink-500); }
 
 .w-full { width: 100%; }
+.w-m-full { width: 50%;} 
 .max-w-md { max-width: 28rem; }
 .bg-gray-50 { background-color: var(--gray-50); }
 .p-4 { padding: 1rem; }

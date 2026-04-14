@@ -328,14 +328,14 @@ export default function Produtos() {
                 <input 
                   value={form.preco}
                   type="number" step="0.01" placeholder="Preço" 
-                  className="w-1/2 p-2 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  className="w-m-full p-2 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
                   onChange={e => setForm({...form, preco: e.target.value})}
                   required
                 />
                 <input 
                   value={form.qtd}
                   type="number" placeholder="Estoque" 
-                  className="w-1/2 p-2 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
+                  className="w-m-full p-2 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400"
                   onChange={e => setForm({...form, qtd: e.target.value})}
                   required
                 />
