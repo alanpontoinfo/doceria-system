@@ -203,6 +203,27 @@
 .p-2 { padding: 0.5rem; }
 .rounded-2xl { border-radius: 1rem; }
 .focus\:outline-none:focus { outline: none; border-color: var(--pink-500); }
+/* No seu Produtos.css */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex !important; /* Força o uso do flex */
+  align-items: center;      /* Centraliza verticalmente */
+  justify-content: center;   /* Centraliza horizontalmente */
+  background-color: rgba(26, 26, 26, 0.4); /* Seu doce-preto com opacidade */
+  backdrop-filter: blur(12px);
+  padding: 1rem;
+  z-index: 100;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 450px; /* Largura máxima confortável para o formulário */
+  margin: auto;     /* Reforço de segurança para centralização */
+}
+
+
 
 /* ANIMAÇÃO DE LOADING */
 .animate-spin {

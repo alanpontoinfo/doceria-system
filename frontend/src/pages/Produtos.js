@@ -300,6 +300,74 @@ export default function Produtos() {
       )}
 
       {/* MODAL (FOI MOVIDO PARA DENTRO DA DIV PRINCIPAL E ANTES DO FIM DO RETURN) */}
+
+{isModalOpen && (
+  <div className="modal-overlay">
+    {/* Container Branco do Form */}
+    <div className="modal-content bg-white p-8 rounded-[40px] shadow-2xl border-b-8 border-pink-500 relative mx-auto">
+      
+      {/* Botão Fechar */}
+      <button 
+        onClick={fecharModal} 
+        className="btn-cursorpointer absolute top-6 right-6 text-gray-400 hover:text-black transition-colors"
+      >
+        <X size={24} />
+      </button>
+
+      <h2 className="text-2xl font-black mb-6 text-doce-preto">
+        {editingId ? 'Editar Doce' : 'Cadastrar Doce'}
+      </h2>
+
+      <form onSubmit={handleSave} className="space-y-4">
+        <input
+          value={form.nome}
+          placeholder="Nome da delícia"
+          className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
+          onChange={e => setForm({...form, nome: e.target.value})}
+          required
+        />
+        
+        <input
+          value={form.tipoProduto}
+          placeholder="Categoria (ex: Bolos)"
+          className="w-full p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
+          onChange={e => setForm({...form, tipoProduto: e.target.value})}
+          required
+        />
+
+        <div className="flex gap-4">
+          <input
+            value={form.preco}
+            type="number" step="0.01" 
+            placeholder="Preço"
+            className="flex-1 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
+            onChange={e => setForm({...form, preco: e.target.value})}
+            required
+          />
+          <input
+            value={form.qtd}
+            type="number" 
+            placeholder="Estoque"
+            className="flex-1 p-4 bg-gray-50 border-2 border-pink-50 rounded-2xl focus:outline-none focus:border-pink-400 transition-all"
+            onChange={e => setForm({...form, qtd: e.target.value})}
+            required
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="btn-cursorpointer w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4"
+        >
+          {editingId ? 'Salvar Alterações' : 'Confirmar Cadastro'}
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+
+
+
+{/*
       {isModalOpen && (
         <div className="fixed inset-0 bg-doce-preto/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
           <div className="bg-white p-8 rounded-[40px] w-full max-w-md shadow-2xl border-b-8 border-pink-500 relative">
@@ -346,7 +414,7 @@ export default function Produtos() {
             </form>
           </div>
         </div>
-      )}
+      )}*/}
     </div>
   );
 }
