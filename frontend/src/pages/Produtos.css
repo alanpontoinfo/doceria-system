@@ -199,6 +199,7 @@
 .max-w-md { max-width: 28rem; }
 .bg-gray-50 { background-color: var(--gray-50); }
 .p-4 { padding: 1rem; }
+.p-2 { padding: 0.5rem; }
 .rounded-2xl { border-radius: 1rem; }
 .focus\:outline-none:focus { outline: none; border-color: var(--pink-500); }
 
