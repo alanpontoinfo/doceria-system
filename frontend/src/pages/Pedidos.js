@@ -74,7 +74,7 @@ export default function Pedidos() {
     } catch (err) {
       alert("Erro ao processar pedido");
     }
-  };*/
+  };
 
   const finalizarPedido = async () => {
   if (carrinho.length === 0) {
@@ -111,6 +111,76 @@ export default function Pedidos() {
     setPagHist(1);
   } catch (err) {
     alert("Erro ao processar pedido. Verifique sua conexão.");
+  }
+};*/
+
+
+
+  const finalizarPedido = async () => {
+  // 1. Validação básica de carrinho vazio
+  if (carrinho.length === 0) {
+    alert("⚠️ Seu carrinho está vazio! Escolha uma delícia primeiro.");
+    return;
+  }
+
+  // 2. Resgate do ID do usuário (como o seu backend exige no header)
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    alert("⚠️ Erro: Usuário não identificado. Por favor, faça login novamente.");
+    return;
+  }
+
+  // 3. Validação de Estoque LOCAL (Pre-check para UX rápida)
+  for (const item of carrinho) {
+    // Procuramos o produto no estado 'produtos' vindo do banco
+    // Usamos String() para garantir que a comparação de IDs não falhe por tipo
+    const pOriginal = produtos.find(p => String(p._id || p.id) === String(item.id_produto));
+
+    if (!pOriginal) {
+      alert(`⚠️ Produto "${item.nome}" não encontrado no catálogo.`);
+      return;
+    }
+
+    const estoqueDisponivel = Number(pOriginal.qtd);
+    const quantidadePedida = Number(item.qtd);
+
+    if (estoqueDisponivel <= 0) {
+      alert(`⚠️ Ah não! O estoque de "${item.nome}" acabou enquanto você comprava.`);
+      return;
+    }
+
+    if (quantidadePedida > estoqueDisponivel) {
+      alert(`⚠️ Quantidade insuficiente para "${item.nome}".\n\nDisponível: ${estoqueDisponivel}\nNo seu carrinho: ${quantidadePedida}`);
+      return;
+    }
+  }
+
+  // 4. Envio para o Backend
+  try {
+    // Note que passamos o user-id no header como seu Python espera
+    const response = await api.post('/pedido',
+      { itens: carrinho },
+      { headers: { 'user-id': userId } }
+    );
+
+    // 5. Sucesso: Limpeza e Atualização
+    alert("🍭 Maravilha! Pedido enviado com sucesso!");
+    setCarrinho([]); // Esvazia o carrinho
+    carregarDados(); // Recarrega os produtos (estoque atualizado do banco)
+
+    if (typeof setPagHist === 'function') {
+      setPagHist(1); // Se tiver paginação de histórico, volta para o início
+    }
+
+  } catch (err) {
+    // 6. Tratamento de Erro do Backend (Ex: se o estoque acabou no exato segundo do clique)
+    const mensagemErro = err.response?.data?.error || "Erro ao processar seu pedido.";
+    alert(`❌ Erro: ${mensagemErro}`);
+
+    // Se o erro for de estoque, recarregamos os dados para mostrar a realidade ao usuário
+    if (err.response?.status === 400) {
+      carregarDados();
+    }
   }
 };
 

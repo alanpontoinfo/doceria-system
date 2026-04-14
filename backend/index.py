@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from fpdf import FPDF
 import io
+from bson.errors import InvalidId
+
 
 
 class CustomJSONProvider(DefaultJSONProvider):
@@ -89,7 +91,7 @@ def produto_update_delete(id):
     return jsonify({"msg": "Removido"})
 
 # ================= PEDIDOS (CLIENTE E ADMIN CRUD COMPLETO) =================
-@app.route('/api/pedido', methods=['POST', 'GET'])
+'''@app.route('/api/pedido', methods=['POST', 'GET'])
 def pedido_handler():
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
     if not verificar_permissao(user_id, ['cliente', 'admin']):
@@ -133,6 +135,80 @@ def pedido_handler():
         p['_id'] = str(p['_id'])
         p['usuario_id'] = str(p['usuario_id'])
     return jsonify(lista)
+
+'''
+
+@app.route('/api/pedido', methods=['POST', 'GET'])
+def pedido_handler():
+    user_id = request.headers.get('user-id') or request.headers.get('user_id')
+    
+    if not verificar_permissao(user_id, ['cliente', 'admin']):
+        return jsonify({"error": "Não autorizado"}), 403
+
+    if request.method == 'POST':
+        try:
+            data = request.json
+            itens_pedido = data.get('itens', [])
+            total = 0
+            produtos_atualizados = []
+
+            # 1. Validação e Cálculo (Apenas leitura)
+            for item in itens_pedido:
+                p_id = ObjectId(item['id_produto'])
+                prod_db = produtos.find_one({"_id": p_id})
+                
+                if not prod_db:
+                    return jsonify({"error": f"Produto não encontrado"}), 404
+                
+                if prod_db['qtd'] < item['qtd']:
+                    return jsonify({"error": f"Estoque insuficiente: {prod_db['nome']}"}), 400
+
+                total += prod_db['preco'] * item['qtd']
+                produtos_atualizados.append({
+                    "id": p_id, "nome": prod_db['nome'],
+                    "preco": prod_db['preco'], "qtd": item['qtd']
+                })
+
+            # 2. Atualização Atômica (O "pulo do gato")
+            # Usamos o filtro 'qtd': {'$gte': p['qtd']} para garantir que o estoque
+            # ainda é suficiente no exato milissegundo da gravação.
+            for p in produtos_atualizados:
+                resultado = produtos.update_one(
+                    {"_id": p['id'], "qtd": {"$gte": p['qtd']}}, 
+                    {"$inc": {"qtd": -p['qtd']}}
+                )
+                
+                if resultado.modified_count == 0:
+                    # Se não modificou, significa que alguém comprou antes de você processar
+                    return jsonify({"error": f"O produto {p['nome']} esgotou enquanto você finalizava!"}), 400
+
+            # 3. Registro do Pedido
+            pedido = {
+                "usuario_id": ObjectId(user_id),
+                "itens": produtos_atualizados,
+                "total": total,
+                "data": datetime.now()
+            }
+            pedidos.insert_one(pedido)
+            
+            return jsonify({
+                "msg": "Pedido criado com sucesso!",
+                "total": total
+            }), 201
+
+        except InvalidId:
+            return jsonify({"error": "ID de produto ou usuário inválido"}), 400
+        except Exception as e:
+            return jsonify({"error": f"Erro interno: {str(e)}"}), 500
+
+    # GET Pedidos (Mantendo sua lógica de listagem)
+    lista = list(pedidos.find().sort("data", -1)) # Ordenado por data
+    for p in lista:
+        p['_id'] = str(p['_id'])
+        p['usuario_id'] = str(p['usuario_id'])
+    return jsonify(lista)
+
+
 
 @app.route('/api/pedido/<id>', methods=['PUT', 'DELETE'])
 def pedido_modificar(id):
