@@ -76,7 +76,7 @@ export default function Pedidos() {
     }
   };*/
 
-	const finalizarPedido = async () => {
+/*	const finalizarPedido = async () => {
   if (carrinho.length === 0) {
     alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
     return;
@@ -109,6 +109,44 @@ export default function Pedidos() {
     setPagHist(1);
   } catch (err) {
     alert("Erro ao processar pedido");
+  }
+};*/
+
+	const finalizarPedido = async () => {
+  if (carrinho.length === 0) {
+    alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
+    return;
+  }
+
+  // Percorre o carrinho para validar o estoque de cada item
+  for (const item of carrinho) {
+    // Busca o produto correspondente na lista de produtos carregada do banco
+    const pOriginal = produtos.find(p => p.id === item.id_produto);
+
+    if (!pOriginal) continue;
+
+    // TESTE 1: Produto esgotado
+    if (pOriginal.qtd <= 0) {
+      alert(`⚠️ O produto "${item.nome}" acabou!`);
+      return;
+    }
+
+    // TESTE 2: Quantidade pedida maior que o estoque (Ex: pediu 7, mas só tem 5)
+    if (item.qtd > pOriginal.qtd) {
+      alert(`⚠️ Quantidade insuficiente para "${item.nome}". \n\nVocê pediu ${item.qtd}, mas temos apenas ${pOriginal.qtd} unidades disponíveis.`);
+      return; // Interrompe o envio se houver erro de estoque
+    }
+  }
+
+  // Se passou em todas as validações, envia para a API
+  try {
+    await api.post('/pedido', { itens: carrinho });
+    alert("🍭 Pedido enviado com sucesso!");
+    setCarrinho([]);
+    carregarDados(); // Recarrega os produtos para atualizar o estoque visualmente
+    setPagHist(1);
+  } catch (err) {
+    alert("Erro ao processar pedido. Verifique sua conexão.");
   }
 };
 
