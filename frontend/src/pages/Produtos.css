@@ -327,6 +327,12 @@
   transform: translateY(-2px);
 }
 
+.btn-cad-prodt:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4);
+}
+
 /*.actions-grid {
   display: flex;
   flex-wrap: wrap; Permite quebrar linha no celular 

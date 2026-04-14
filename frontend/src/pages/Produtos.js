@@ -187,7 +187,7 @@ export default function Produtos() {
           className="btn-primary"
         >
           <Plus size={18} /> 
-          <span>Novo Doce</span>
+          <span>Novo Produto</span>
         </button>
       </>
     )}
@@ -314,8 +314,8 @@ export default function Produtos() {
         <X size={24} />
       </button>
 
-      <h2 className="text-2xl font-black mb-6 text-doce-preto">
-        {editingId ? 'Editar Doce' : 'Cadastrar Doce'}
+      <h2 className="text-2xl font-black mb-6 text-doce-preto p-4">
+        {editingId ? 'Editar Produto' : 'Cadastrar Produto'}
       </h2>
 
       <form onSubmit={handleSave} className="space-y-4">
@@ -356,7 +356,7 @@ export default function Produtos() {
 
         <button 
           type="submit" 
-          className="btn-cursorpointer w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4"
+          className="btn-cursorpointer btn-cad-prodt w-full bg-doce-preto text-white p-4 rounded-2xl font-bold hover:bg-pink-500 transition-all shadow-lg mt-4"
         >
           {editingId ? 'Salvar Alterações' : 'Confirmar Cadastro'}
         </button>
