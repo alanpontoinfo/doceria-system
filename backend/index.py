@@ -91,7 +91,8 @@ def produto_update_delete(id):
     return jsonify({"msg": "Removido"})
 
 # ================= PEDIDOS (CLIENTE E ADMIN CRUD COMPLETO) =================
-'''@app.route('/api/pedido', methods=['POST', 'GET'])
+""" 
+@app.route('/api/pedido', methods=['POST', 'GET'])
 def pedido_handler():
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
     if not verificar_permissao(user_id, ['cliente', 'admin']):
@@ -135,8 +136,8 @@ def pedido_handler():
         p['_id'] = str(p['_id'])
         p['usuario_id'] = str(p['usuario_id'])
     return jsonify(lista)
+"""
 
-'''
 
 @app.route('/api/pedido', methods=['POST', 'GET'])
 def pedido_handler():
