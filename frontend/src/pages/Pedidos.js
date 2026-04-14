@@ -60,7 +60,7 @@ export default function Pedidos() {
     }
   };
 
-  const finalizarPedido = async () => {
+  /*const finalizarPedido = async () => {
     if (carrinho.length === 0) {
       alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
       return;
@@ -74,7 +74,43 @@ export default function Pedidos() {
     } catch (err) {
       alert("Erro ao processar pedido");
     }
-  };
+  };*/
+
+	const finalizarPedido = async () => {
+  if (carrinho.length === 0) {
+    alert("⚠️ Carrinho vazio! Escolha uma delícia primeiro.");
+    return;
+  }
+
+  // --- VALIDAÇÃO DE ESTOQUE ---
+  for (const item of carrinho) {
+    // Procura o produto original na lista 'produtos' do seu estado
+    const pOriginal = produtos.find(p => p.id === item.id_produto);
+
+    // Se o produto não for encontrado ou a quantidade (qtd) for zero ou menos
+    if (!pOriginal || pOriginal.qtd <= 0) {
+      alert(`⚠️ Este produto acabou: ${item.nome}`);
+      return; // Interrompe a função e não envia o pedido
+    }
+
+    // Opcional: Verifica se o pedido é maior que o estoque disponível
+    if (item.qtd > pOriginal.qtd) {
+      alert(`⚠️ Estoque insuficiente para ${item.nome}. Temos apenas ${pOriginal.qtd} unidades.`);
+      return;
+    }
+  }
+
+  // --- PROCESSO DE ENVIO ---
+  try {
+    await api.post('/pedido', { itens: carrinho });
+    alert("🍭 Pedido enviado para a cozinha!");
+    setCarrinho([]);
+    carregarDados(); // Atualiza a lista de produtos (diminuindo o estoque visualmente)
+    setPagHist(1);
+  } catch (err) {
+    alert("Erro ao processar pedido");
+  }
+};
 
   const calcularTotal = () => carrinho.reduce((sum, i) => sum + i.preco * i.qtd, 0);
 
@@ -174,13 +210,23 @@ export default function Pedidos() {
                 ))
               )}
             </div>
-            <div className="carrinho-rodape">
+	  {/*<div className="carrinho-rodape">
               <div className="carrinho-total">
                 <span>TOTAL:</span>
                 <span className="valor-total">R$ {calcularTotal().toFixed(2)}</span>
               </div>
               <button onClick={finalizarPedido} className="btn-finalizar">Finalizar</button>
-            </div>
+            </div>*/}
+	  <div className="carrinho-rodape">
+  <div className="carrinho-total">
+    <span>TOTAL:</span>
+    <span className="valor-total">R$ {calcularTotal().toFixed(2)}</span>
+  </div>
+   <button
+    onClick={finalizarPedido}
+    className={`btn-finalizar ${carrinho.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+    disabled={carrinho.length === 0}> Finalizar </button>
+    </div>
           </div>
         </div>
 
