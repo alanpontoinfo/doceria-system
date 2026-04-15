@@ -90,55 +90,7 @@ def produto_update_delete(id):
     produtos.delete_one({"_id": ObjectId(id)})
     return jsonify({"msg": "Removido"})
 
-# ================= PEDIDOS (CLIENTE E ADMIN CRUD COMPLETO) =================
-""" 
-@app.route('/api/pedido', methods=['POST', 'GET'])
-def pedido_handler():
-    user_id = request.headers.get('user-id') or request.headers.get('user_id')
-    if not verificar_permissao(user_id, ['cliente', 'admin']):
-        return jsonify({"error": "Não autorizado"}), 403
-
-    if request.method == 'POST':
-        data = request.json
-        itens_pedido = data['itens']
-        total = 0
-        produtos_atualizados = []
-
-        # Validação de Estoque
-        for item in itens_pedido:
-            prod_db = produtos.find_one({"_id": ObjectId(item['id_produto'])})
-            if not prod_db or prod_db['qtd'] < item['qtd']:
-                return jsonify({"error": f"Produto {prod_db['nome'] if prod_db else 'Inexistente'} indisponível"}), 400
-            
-            total += prod_db['preco'] * item['qtd']
-            produtos_atualizados.append({
-                "id": prod_db['_id'], "nome": prod_db['nome'], 
-                "preco": prod_db['preco'], "qtd": item['qtd']
-            })
-
-        # Atualizar Estoque
-        for p in produtos_atualizados:
-            produtos.update_one({"_id": p['id']}, {"$inc": {"qtd": -p['qtd']}})
-
-        pedido = {
-            "usuario_id": ObjectId(user_id), "itens": produtos_atualizados,
-            "total": total, "data": datetime.now()
-        }
-        pedidos.insert_one(pedido)
-        return jsonify({
-            "msg": "Pedido criado! ATENÇÃO: O cancelamento só é permitido nas próximas 24h.",
-            "total": total
-        })
-
-    # GET Pedidos
-    lista = list(pedidos.find())
-    for p in lista:
-        p['_id'] = str(p['_id'])
-        p['usuario_id'] = str(p['usuario_id'])
-    return jsonify(lista)
-"""
-
-
+# ================= PEDIDOS (CLIENTE E ADMIN CRUD COMPLETO) ==============
 @app.route('/api/pedido', methods=['POST', 'GET'])
 def pedido_handler():
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
