@@ -17,12 +17,8 @@
       "destination": "backend/index.py"
     },
     {
-      "source": "/static/(.*)",
-      "destination": "/static/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "frontend/$1"
     }
   ]
 }
