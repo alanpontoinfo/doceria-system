@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 
-export default function Login() {
+export default function Login({ setEstaLogado }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -22,6 +22,12 @@ export default function Login() {
       localStorage.setItem('userTipo', res.data.tipo);
       localStorage.setItem('userName', res.data.nome);
 	    {/*window.location.href = '/produtos';*/}
+
+	    // 2. O PULO DO GATO: Atualiza o estado global do App imediatamente
+      // Sem isso, o App.js só saberia que você logou se desse F5
+      if (setEstaLogado) {
+        setEstaLogado(true);
+      }
       navigate('/produtos');
 
     } catch (err) {
@@ -112,7 +118,7 @@ export default function Login() {
               rel="noopener noreferrer"
               className="dev-credit"
             >
-              Desenvolvido por <strong>alanpontoinfo</strong> <ExternalLink size={15} />
+              Desenvolvido por <strong>alanpontoinfo</strong> <ExternalLink size={20} />
             </a>
 	    <p className="footer-link">
             Já tem uma conta? <span onClick={() => navigate('/registro')}>Criar Registro</span>
