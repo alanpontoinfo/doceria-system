@@ -11,17 +11,17 @@
       "config": { "distDir": "build" }
     }
   ],
-  "routes": [
+ "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "backend/index.py"
+      "src": "/api/(.*)",
+      "dest": "backend/index.py"
     },
     {
       "handle": "filesystem"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
