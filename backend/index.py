@@ -361,6 +361,75 @@ def relatorio_vendas():
 @app.route('/api/relatorio/precos', methods=['GET'])
 def relatorio_precos():
     try:
+        # 1. Configuração inicial do PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(190, 10, u"Tabela de Preços Atualizada", ln=True, align='C')
+        pdf.ln(10)
+
+        # 2. Cabeçalho da Tabela
+        pdf.set_font("Arial", 'B', 10)
+        pdf.set_fill_color(240, 240, 240)  # Cinza claro para o topo
+        pdf.cell(80, 10, "Produto", 1, 0, 'C', True)
+        pdf.cell(60, 10, "Categoria", 1, 0, 'C', True)
+        pdf.cell(40, 10, "Preco", 1, 0, 'C', True)
+        pdf.ln()
+
+        # 3. Corpo da Tabela com Tratamento de Erros
+        pdf.set_font("Arial", '', 10)
+        
+        # Buscamos todos os produtos do MongoDB
+        lista_produtos = list(produtos.find())
+
+        for prod in lista_produtos:
+            # Tratamento do Nome e Categoria (garante que sejam strings)
+            nome = str(prod.get('nome', 'Sem Nome'))
+            categoria = str(prod.get('tipoProduto', 'Geral'))
+            
+            # SOLUÇÃO DO ERRO: Conversão segura de Preço
+            try:
+                # Tentamos converter para float (resolve se for string no banco)
+                valor_bruto = prod.get('preco', 0)
+                
+                # Se for string com vírgula (ex: "15,50"), trocamos por ponto
+                if isinstance(valor_bruto, str):
+                    valor_bruto = valor_bruto.replace(',', '.')
+                
+                preco_float = float(valor_bruto)
+                preco_texto = f"R$ {preco_float:.2f}"
+            except (ValueError, TypeError):
+                # Caso o dado seja totalmente inválido (ex: "A combinar")
+                # Pegamos o valor bruto como string para não travar o PDF
+                preco_texto = f"R$ {prod.get('preco', '0.00')}"
+
+            # Escrita das células no PDF
+            pdf.cell(80, 10, nome, 1)
+            pdf.cell(60, 10, categoria, 1)
+            pdf.cell(40, 10, preco_texto, 1)
+            pdf.ln()
+
+        # 4. Preparação do arquivo para envio
+        # Importante: No FPDF moderno, output(dest='S') retorna os bytes
+        pdf_output = pdf.output(dest='S')
+        if isinstance(pdf_output, str):
+            pdf_output = pdf_output.encode('latin1') # Fallback para versões antigas
+
+        return send_file(
+            io.BytesIO(pdf_output),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name="tabela_precos.pdf"
+        )
+
+    except Exception as e:
+        print(f"Erro fatal no PDF: {e}")
+        return jsonify({"error": f"Erro interno ao gerar PDF: {str(e)}"}), 500
+
+
+''' @app.route('/api/relatorio/precos', methods=['GET'])
+def relatorio_precos():
+    try:
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", 'B', 16)
@@ -389,7 +458,7 @@ def relatorio_precos():
             download_name="tabela_precos.pdf"
         )
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500 '''
 
 
 # ================= PRECIFICAÇÃO DINÂMICA (ADMIN) =================
