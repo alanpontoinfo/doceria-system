@@ -17,11 +17,8 @@
       "destination": "backend/index.py"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "frontend/$1"
     }
   ]
 }
