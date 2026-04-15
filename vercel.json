@@ -17,6 +17,9 @@
       "destination": "backend/index.py"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
