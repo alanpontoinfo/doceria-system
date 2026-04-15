@@ -11,10 +11,13 @@
       "config": { "distDir": "build" }
     }
   ],
-  "rewrites": [
+  "routes": [
     {
       "source": "/api/(.*)",
       "destination": "backend/index.py"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "source": "/(.*)",
