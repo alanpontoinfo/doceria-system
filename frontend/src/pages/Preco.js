@@ -134,7 +134,7 @@ export default function Preco() {
                     <span className="text-white font-bold">R$ {resultado['3_custo_total_producao']}</span>
                   </p>
                   <p className="flex justify-between text-gray-400">
-                    <span>Sugestão Fornada:</span> 
+                    <span>Sugestão Formada:</span> 
                     <span className="text-white font-bold">R$ {resultado['5_preco_final_sugerido']}</span>
                   </p>
                 </div>
