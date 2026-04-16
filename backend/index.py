@@ -77,18 +77,55 @@ def produtos_handler():
     for p in lista: p['_id'] = str(p['_id'])
     return jsonify(lista)
 
+
 @app.route('/api/produtos/<id>', methods=['PUT', 'DELETE'])
 def produto_update_delete(id):
+    # 1. Verificação de Permissão (Mantida conforme sua lógica)
     user_id = request.headers.get('user-id') or request.headers.get('user_id')
     if not verificar_permissao(user_id, ['admin']):
         return jsonify({"error": "Acesso negado."}), 403
 
-    if request.method == 'PUT':
-        produtos.update_one({"_id": ObjectId(id)}, {"$set": request.json})
-        return jsonify({"msg": "Atualizado"})
+    try:
+        # --- LÓGICA PARA ATUALIZAÇÃO (PUT) ---
+        if request.method == 'PUT':
+            dados = request.json
+            if not dados:
+                return jsonify({"error": "Dados não fornecidos"}), 400
 
-    produtos.delete_one({"_id": ObjectId(id)})
-    return jsonify({"msg": "Removido"})
+            # Forçamos a conversão e o tratamento de erros de tipagem aqui dentro
+            # Usamos .get() com valores padrão para evitar quebras
+            update_data = {
+                "nome": str(dados.get('nome', '')),
+                "tipoProduto": str(dados.get('tipoProduto', '')),
+                "preco": float(str(dados.get('preco', 0)).replace(',', '.')),
+                "qtd": int(dados.get('qtd', 0))
+            }
+
+            resultado = produtos.update_one(
+                {"_id": ObjectId(id)}, 
+                {"$set": update_data}
+            )
+
+            if resultado.matched_count == 0:
+                return jsonify({"error": "Produto não encontrado"}), 404
+                
+            return jsonify({"msg": "Atualizado com sucesso", "tipo": "int/float garantido"}), 200
+
+        # --- LÓGICA PARA REMOÇÃO (DELETE) ---
+        elif request.method == 'DELETE':
+            resultado = produtos.delete_one({"_id": ObjectId(id)})
+            
+            if resultado.deleted_count == 0:
+                return jsonify({"error": "Produto não encontrado"}), 404
+                
+            return jsonify({"msg": "Removido com sucesso"}), 200
+
+    except ValueError as ve:
+        # Captura erros de conversão (ex: preço que não é número)
+        return jsonify({"error": f"Erro de formato nos dados: {str(ve)}"}), 400
+    except Exception as e:
+        # Captura qualquer outro erro inesperado
+        return jsonify({"error": f"Erro interno: {str(e)}"}), 500
 
 # ================= PEDIDOS (CLIENTE E ADMIN CRUD COMPLETO) ==============
 @app.route('/api/pedido', methods=['POST', 'GET'])

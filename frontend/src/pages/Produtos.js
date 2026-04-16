@@ -43,7 +43,7 @@ export default function Produtos() {
     navigate('/');
 	  {/*window.location.href = '/';*/}
   };
-
+/*
   const handleEdit = (p) => {
     setEditingId(p._id);
     setForm({ nome: p.nome, tipoProduto: p.tipoProduto, preco: p.preco, qtd: p.qtd });
@@ -62,6 +62,61 @@ export default function Produtos() {
       loadProducts();
     } catch (err) {
       alert("Erro ao salvar dados.");
+    }
+  };
+*/
+
+const handleEdit = (p) => {
+    setEditingId(p._id);
+    // Garantimos que o formulário receba os dados limpos
+    setForm({ 
+      nome: p.nome, 
+      tipoProduto: p.tipoProduto, 
+      preco: p.preco, 
+      qtd: p.qtd 
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    
+    // 1. Recuperamos o ID do usuário para a permissão (salvo no login)
+    const userId = localStorage.getItem('userId');
+
+    // 2. Preparamos os dados para garantir a tipagem correta antes do envio
+    // Isso evita que o backend receba lixo e facilita o trabalho do Python
+    const dadosParaEnviar = {
+      ...form,
+      preco: parseFloat(String(form.preco).replace(',', '.')),
+      qtd: parseInt(form.qtd, 10)
+    };
+
+    // Validação básica de segurança no frontend
+    if (isNaN(dadosParaEnviar.preco) || isNaN(dadosParaEnviar.qtd)) {
+      alert("Por favor, insira valores válidos para preço e estoque.");
+      return;
+    }
+
+    try {
+      const config = {
+        headers: { 'user-id': userId } // Cabeçalho exigido pela sua API
+      };
+
+      if (editingId) {
+        // Rota de Edição (PUT)
+        await api.put(`/produtos/${editingId}`, dadosParaEnviar, config);
+      } else {
+        // Rota de Criação (POST)
+        await api.post('/produtos', dadosParaEnviar, config);
+      }
+
+      alert("Salvo com sucesso!");
+      fecharModal();
+      loadProducts(); // Recarrega a lista para mostrar os dados novos/editados
+    } catch (err) {
+      const mensagemErro = err.response?.data?.error || "Erro ao salvar dados.";
+      alert(mensagemErro);
     }
   };
 
